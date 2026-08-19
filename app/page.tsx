@@ -9,11 +9,11 @@ const copy = {
   ro: {
     skip: "Sari la conținut", home: "Acasă", story: "Poveste", menu: "Meniu", gallery: "Galerie", visit: "Vizitează-ne",
     openMenu: "Deschide meniul de navigație", closeMenu: "Închide meniul de navigație", switchLanguage: "Switch language to English",
-    eyebrow: "Cafea bună. Ritm domol.", title: <>Un mic refugiu<br />la malul orașului.</>,
-    intro: "Cafea de specialitate, gusturi simple și acel sentiment că ai ajuns exact unde trebuie.", discover: "Descoperă meniul",
+    eyebrow: "Slow coffee. Lumină naturală.", title: <>Un mic refugiu<br />în inima orașului.</>,
+    intro: "Cafea de specialitate, Prosecco și acel sentiment că ai ajuns exact unde trebuie.", discover: "Descoperă meniul",
     heroNote: <>Dimineți tihnite.<br />Cafea făcută cu grijă.</>, manifesto: "Din prima ceașcă până la ultima poveste a zilei.",
     manifestoSmall: "Harbor Cafe · pauza ta de zi cu zi", storyKicker: "Povestea noastră", storyTitle: <>Un loc în care timpul<br />curge puțin mai încet.</>,
-    storyBody1: "Harbor Cafe s-a născut din plăcerea lucrurilor făcute cu grijă: o cafea echilibrată, un colț luminos și conversații care nu se grăbesc nicăieri.",
+    storyBody1: "Harbor Cafe s-a născut din plăcerea lucrurilor făcute cu grijă: specialty coffee, lumină naturală și conversații care nu se grăbesc nicăieri.",
     storyBody2: "Am imaginat un spațiu cald și familiar, cu energia unui port liniștit — un punct de întâlnire în care revii pentru gust, dar rămâi pentru atmosferă.",
     detail1: "Boabe alese", detail2: "Preparare atentă", detail3: "Momente tihnite", menuKicker: "Meniul Harbor", menuTitle: "Simplu. Bun. Memorabil.",
     menuIntro: "O selecție orientativă pentru prima versiune. Vom înlocui produsele și vom adăuga prețurile imediat ce meniul final este gata.",
@@ -21,18 +21,19 @@ const copy = {
     galleryKicker: "Galerie", galleryTitle: <>Texturi, lumină<br />și cafea bună.</>,
     galleryNote: "O privire în atmosfera Harbor Cafe — lumină caldă, cafea pregătită cu grijă și ceva bun alături.",
     galleryAlts: ["Vitrina cu produse Harbor Cafe", "Barista Harbor Cafe pregătind cafeaua", "Espresso curgând într-o ceașcă", "Espresso servit alături de croissante"],
-    visitKicker: "Găsește-ne", visitTitle: "Ne vedem la Harbor.", addressLabel: "Adresă", address: "Adresa va fi anunțată în curând",
-    hoursLabel: "Program", hours: "Programul va fi anunțat în curând", mapReady: "Harta este pregătită", mapNote: "O activăm imediat ce avem adresa finală.",
+    visitKicker: "Găsește-ne", visitTitle: "Ne vedem la Harbor.", addressLabel: "Adresă", address: "Bulevardul Alexandru Ioan Cuza 13, 011051 București",
+    hoursLabel: "Program", mapTitle: "Harbor Cafe pe Google Maps", directions: "Deschide în Google Maps", instagram: "Urmărește-ne pe Instagram",
+    hours: [["Luni", "07:00–17:00"], ["Marți", "07:00–17:00"], ["Miercuri", "07:00–17:00"], ["Joi", "07:00–17:00"], ["Vineri", "07:00–17:00"], ["Sâmbătă", "08:00–16:00"], ["Duminică", "Închis"]],
     footerLine: "Cafea bună. Ritm domol.", footerNote: "Harbor Cafe · Toate drepturile rezervate",
   },
   en: {
     skip: "Skip to content", home: "Home", story: "Story", menu: "Menu", gallery: "Gallery", visit: "Visit us",
     openMenu: "Open navigation menu", closeMenu: "Close navigation menu", switchLanguage: "Schimbă limba în română",
-    eyebrow: "Good coffee. Easy rhythm.", title: <>A little refuge<br />by the city shore.</>,
-    intro: "Specialty coffee, simple flavors, and that feeling of arriving exactly where you need to be.", discover: "Explore the menu",
+    eyebrow: "Slow coffee. Natural light.", title: <>A little refuge<br />in the heart of the city.</>,
+    intro: "Specialty coffee, Prosecco, and that feeling of arriving exactly where you need to be.", discover: "Explore the menu",
     heroNote: <>Slow mornings.<br />Coffee made with care.</>, manifesto: "From the first cup to the last story of the day.",
     manifestoSmall: "Harbor Cafe · your daily pause", storyKicker: "Our story", storyTitle: <>A place where time<br />moves a little slower.</>,
-    storyBody1: "Harbor Cafe grew from the joy of things made with care: balanced coffee, a bright corner, and conversations in no hurry to end.",
+    storyBody1: "Harbor Cafe grew from the joy of things made with care: specialty coffee, natural light, and conversations in no hurry to end.",
     storyBody2: "We imagined a warm, familiar space with the energy of a quiet harbor — a meeting point you return to for the taste and stay for the feeling.",
     detail1: "Selected beans", detail2: "Careful brewing", detail3: "Unhurried moments", menuKicker: "The Harbor menu", menuTitle: "Simple. Good. Memorable.",
     menuIntro: "A sample selection for this first version. We will replace the products and add prices as soon as the final menu is ready.",
@@ -40,8 +41,9 @@ const copy = {
     galleryKicker: "Gallery", galleryTitle: <>Texture, light<br />and good coffee.</>,
     galleryNote: "A glimpse into Harbor Cafe — warm light, carefully made coffee, and something good on the side.",
     galleryAlts: ["The Harbor Cafe counter", "Harbor Cafe barista preparing coffee", "Espresso pouring into a cup", "Espresso served with croissants"],
-    visitKicker: "Find us", visitTitle: "Meet you at Harbor.", addressLabel: "Address", address: "Address to be announced soon",
-    hoursLabel: "Opening hours", hours: "Opening hours to be announced soon", mapReady: "The map is ready", mapNote: "We will activate it as soon as the final address is available.",
+    visitKicker: "Find us", visitTitle: "Meet you at Harbor.", addressLabel: "Address", address: "13 Alexandru Ioan Cuza Boulevard, 011051 Bucharest",
+    hoursLabel: "Opening hours", mapTitle: "Harbor Cafe on Google Maps", directions: "Open in Google Maps", instagram: "Follow us on Instagram",
+    hours: [["Monday", "7:00 AM–5:00 PM"], ["Tuesday", "7:00 AM–5:00 PM"], ["Wednesday", "7:00 AM–5:00 PM"], ["Thursday", "7:00 AM–5:00 PM"], ["Friday", "7:00 AM–5:00 PM"], ["Saturday", "8:00 AM–4:00 PM"], ["Sunday", "Closed"]],
     footerLine: "Good coffee. Easy rhythm.", footerNote: "Harbor Cafe · All rights reserved",
   },
 } as const;
@@ -73,12 +75,18 @@ const menuItems = {
   ],
 } as const;
 
+const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
+
 const galleryImages = [
-  "/gallery/cafe-counter.jpg",
-  "/gallery/barista-preparing-coffee.jpg",
-  "/gallery/espresso-pour.jpg",
-  "/gallery/coffee-and-croissants.jpg",
+  assetUrl("gallery/cafe-counter.jpg"),
+  assetUrl("gallery/barista-preparing-coffee.jpg"),
+  assetUrl("gallery/espresso-pour.jpg"),
+  assetUrl("gallery/coffee-and-croissants.jpg"),
 ];
+
+const instagramUrl = "https://www.instagram.com/harborcafe.bucuresti/";
+const mapsUrl = "https://www.google.com/maps/search/?api=1&query=Bulevardul%20Alexandru%20Ioan%20Cuza%2013%2C%20011051%20Bucuresti";
+const mapsEmbedUrl = "https://www.google.com/maps?q=Bulevardul%20Alexandru%20Ioan%20Cuza%2013%2C%20011051%20Bucuresti&output=embed";
 
 export default function Home() {
   const [language, setLanguage] = useState<Language>("ro");
@@ -109,7 +117,7 @@ export default function Home() {
             <a className="primary-action" href="#menu">{t.discover} <span aria-hidden="true">↗</span></a>
           </div>
           <div className="hero-mark" aria-label="Logo Harbor Cafe">
-            <img src="/harbor-cafe-logo.png" alt="Harbor Cafe" /><span className="orbit-copy" aria-hidden="true">COFFEE • SLOW MORNINGS • HARBOR • </span>
+            <img src={assetUrl("harbor-cafe-logo.png")} alt="Harbor Cafe" /><span className="orbit-copy" aria-hidden="true">COFFEE • SLOW MORNINGS • HARBOR • </span>
           </div>
           <div className="hero-note" aria-label={language === "ro" ? "Atmosfera Harbor Cafe" : "The Harbor Cafe mood"}><span>01</span><p>{t.heroNote}</p></div>
           <a className="scroll-cue" href="#story" aria-label={t.story}><span />SCROLL</a>
@@ -146,13 +154,17 @@ export default function Home() {
 
         <section className="visit-section" id="visit">
           <div className="visit-copy"><div className="section-kicker light"><span>05</span>{t.visitKicker}</div><h2>{t.visitTitle}</h2>
-            <div className="visit-details"><div><span>{t.addressLabel}</span><p>{t.address}</p></div><div><span>{t.hoursLabel}</span><p>{t.hours}</p></div></div>
+            <div className="visit-details">
+              <div className="address-block"><span>{t.addressLabel}</span><address>{t.address}</address><a href={mapsUrl} target="_blank" rel="noreferrer">{t.directions} <span aria-hidden="true">↗</span></a></div>
+              <div className="hours-block"><span>{t.hoursLabel}</span><dl>{t.hours.map(([day, time]) => <div key={day}><dt>{day}</dt><dd>{time}</dd></div>)}</dl></div>
+            </div>
+            <a className="instagram-link" href={instagramUrl} target="_blank" rel="noreferrer" aria-label={`${t.instagram}: @harborcafe.bucuresti`}><span>{t.instagram}</span><strong>@harborcafe.bucuresti</strong><span aria-hidden="true">↗</span></a>
           </div>
-          <div className="map-placeholder" aria-label={`${t.mapReady}. ${t.mapNote}`}><div className="map-water" /><div className="map-road road-one" /><div className="map-road road-two" /><div className="map-road road-three" /><div className="map-pin"><span>HC</span></div><div className="map-message"><strong>{t.mapReady}</strong><span>{t.mapNote}</span></div></div>
+          <div className="map-embed"><iframe src={mapsEmbedUrl} title={t.mapTitle} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen /></div>
         </section>
       </main>
 
-      <footer><div className="footer-brand"><img src="/harbor-cafe-logo.png" alt="" /><div><strong>Harbor Cafe</strong><span>{t.footerLine}</span></div></div><a href="#top" className="back-top" aria-label={t.home}>↑</a><p>{t.footerNote} · {new Date().getFullYear()}</p></footer>
+      <footer><div className="footer-brand"><img src={assetUrl("harbor-cafe-logo.png")} alt="" /><div><strong>Harbor Cafe</strong><span>{t.footerLine}</span></div></div><a href="#top" className="back-top" aria-label={t.home}>↑</a><p><a href={instagramUrl} target="_blank" rel="noreferrer">Instagram</a> · {t.footerNote} · {new Date().getFullYear()}</p></footer>
     </>
   );
 }

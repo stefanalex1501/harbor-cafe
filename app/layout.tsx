@@ -12,20 +12,20 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(origin),
     title: "Harbor Cafe — Cafea bună. Ritm domol.",
-    description: "Harbor Cafe este locul pentru cafea bună, gusturi simple și momente tihnite.",
+    description: "Harbor Cafe București — specialty coffee, Prosecco și lumină naturală, pe Bulevardul Alexandru Ioan Cuza 13.",
     icons: { icon: "/harbor-cafe-logo.png", shortcut: "/harbor-cafe-logo.png" },
     openGraph: {
       type: "website",
       locale: "ro_RO",
       siteName: "Harbor Cafe",
       title: "Harbor Cafe — Cafea bună. Ritm domol.",
-      description: "Cafea de specialitate, gusturi simple și momente tihnite.",
+      description: "Specialty coffee, Prosecco și lumină naturală în București.",
       images: [{ url: socialImage, width: 1672, height: 941, alt: "Harbor Cafe — Cafea bună. Ritm domol." }],
     },
     twitter: {
       card: "summary_large_image",
       title: "Harbor Cafe — Cafea bună. Ritm domol.",
-      description: "Cafea de specialitate, gusturi simple și momente tihnite.",
+      description: "Specialty coffee, Prosecco și lumină naturală în București.",
       images: [socialImage],
     },
   };
