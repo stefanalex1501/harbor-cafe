@@ -162,8 +162,12 @@ h1 { margin: 0; max-width: 750px; font-size: clamp(4.2rem, 7.7vw, 8rem); letter-
 .gallery-item-6 { grid-column: span 5; margin-top: 12%; }
 .gallery-item-7 { grid-column: span 5; }
 .gallery-item-8 { grid-column: span 7; margin-top: 5%; }
-.gallery-item-1 img, .gallery-item-4 img, .gallery-item-5 img, .gallery-item-8 img { aspect-ratio: 4 / 3; }
-.gallery-item-2 img, .gallery-item-3 img, .gallery-item-6 img, .gallery-item-7 img { aspect-ratio: 4 / 5; }
+.gallery-item-9 { grid-column: span 5; margin-top: 10%; }
+.gallery-item-10 { grid-column: span 7; }
+.gallery-item-11 { grid-column: span 5; }
+.gallery-item-12 { grid-column: span 7; margin-top: 5%; }
+.gallery-item-1 img, .gallery-item-4 img, .gallery-item-5 img, .gallery-item-8 img, .gallery-item-10 img, .gallery-item-12 img { aspect-ratio: 4 / 3; }
+.gallery-item-2 img, .gallery-item-3 img, .gallery-item-6 img, .gallery-item-7 img, .gallery-item-9 img, .gallery-item-11 img { aspect-ratio: 4 / 5; }
 .gallery-item { overflow: hidden; }
 .gallery-item figcaption { position: relative; z-index: 2; display: flex; justify-content: space-between; padding: .85rem 0 0; background: #f8f2e7; text-transform: uppercase; letter-spacing: .12em; font-size: .64rem; }
 .gallery-item figcaption span { color: var(--rust); }
@@ -240,9 +244,9 @@ footer > p a { color: rgba(243,237,225,.72); }
   .item-price { grid-column: 2; margin-top: 0; font-size: 1.05rem; }
   .gallery-heading p { justify-self: start; text-align: left; }
   .gallery-grid { grid-template-columns: 1fr; }
-  .gallery-item-1, .gallery-item-2, .gallery-item-3, .gallery-item-4, .gallery-item-5, .gallery-item-6, .gallery-item-7, .gallery-item-8 { grid-column: auto; width: 100%; margin-top: 1.5rem; }
+  .gallery-item-1, .gallery-item-2, .gallery-item-3, .gallery-item-4, .gallery-item-5, .gallery-item-6, .gallery-item-7, .gallery-item-8, .gallery-item-9, .gallery-item-10, .gallery-item-11, .gallery-item-12 { grid-column: auto; width: 100%; margin-top: 1.5rem; }
   .gallery-item-1 { margin-top: 0; }
-  .gallery-item-1 img, .gallery-item-2 img, .gallery-item-3 img, .gallery-item-4 img, .gallery-item-5 img, .gallery-item-6 img, .gallery-item-7 img, .gallery-item-8 img { aspect-ratio: 4 / 3; }
+  .gallery-item-1 img, .gallery-item-2 img, .gallery-item-3 img, .gallery-item-4 img, .gallery-item-5 img, .gallery-item-6 img, .gallery-item-7 img, .gallery-item-8 img, .gallery-item-9 img, .gallery-item-10 img, .gallery-item-11 img, .gallery-item-12 img { aspect-ratio: 4 / 3; }
   .visit-details { grid-template-columns: 1fr; }
   .map-embed { min-height: 470px; }
   .instagram-link { grid-template-columns: 1fr auto; }

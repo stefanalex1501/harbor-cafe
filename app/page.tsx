@@ -24,7 +24,7 @@ const copy = {
     categories: { coffee: "Cafea caldă", notCoffee: "Rece & bar", brunch: "Ciabatta", sweet: "Deserturi" },
     galleryKicker: "Galerie", galleryTitle: <>Texturi, lumină<br />și cafea bună.</>,
     galleryNote: "O privire în atmosfera Harbor Cafe — lumină caldă, cafea pregătită cu grijă și ceva bun alături.",
-    galleryAlts: ["Latte art pregătit la Harbor Cafe", "Cafea măcinată manual", "Vitrina Harbor Cafe cu băuturi și gustări", "Cafea rece cu portocală", "Selecție de cafea de specialitate", "Decorul cu influențe nautice Harbor Cafe", "Cold brew turnat peste gheață", "Produse proaspete în vitrina Harbor Cafe"],
+    galleryAlts: ["Latte art pregătit la Harbor Cafe", "Cafea măcinată manual", "Vitrina Harbor Cafe cu băuturi și gustări", "Cafea rece cu portocală", "Selecție de cafea de specialitate", "Decorul cu influențe nautice Harbor Cafe", "Cold brew turnat peste gheață", "Produse proaspete în vitrina Harbor Cafe", "Cafea preparată prin metoda V60", "Espressorul Harbor Cafe", "Barista tasând cafeaua", "Cafea rece fotografiată de sus"],
     visitKicker: "Găsește-ne", visitTitle: "Ne vedem la Harbor.", addressLabel: "Adresă", address: "Bulevardul Alexandru Ioan Cuza 13, 011051 București",
     hoursLabel: "Program", mapTitle: "Harbor Cafe pe Google Maps", directions: "Deschide în Google Maps", instagram: "Urmărește-ne pe Instagram",
     hours: [["Luni", "07:00–17:00"], ["Marți", "07:00–17:00"], ["Miercuri", "07:00–17:00"], ["Joi", "07:00–17:00"], ["Vineri", "07:00–17:00"], ["Sâmbătă", "08:00–16:00"], ["Duminică", "Închis"]],
@@ -48,7 +48,7 @@ const copy = {
     categories: { coffee: "Hot coffee", notCoffee: "Cold & bar", brunch: "Ciabatta", sweet: "Sweets" },
     galleryKicker: "Gallery", galleryTitle: <>Texture, light<br />and good coffee.</>,
     galleryNote: "A glimpse into Harbor Cafe — warm light, carefully made coffee, and something good on the side.",
-    galleryAlts: ["Latte art being made at Harbor Cafe", "Coffee being ground by hand", "The Harbor Cafe counter with drinks and snacks", "Iced coffee with orange", "A selection of specialty coffee", "Harbor Cafe's nautical interior", "Cold brew poured over ice", "Fresh products at the Harbor Cafe counter"],
+    galleryAlts: ["Latte art being made at Harbor Cafe", "Coffee being ground by hand", "The Harbor Cafe counter with drinks and snacks", "Iced coffee with orange", "A selection of specialty coffee", "Harbor Cafe's nautical interior", "Cold brew poured over ice", "Fresh products at the Harbor Cafe counter", "Coffee brewed with the V60 method", "The Harbor Cafe espresso machine", "A barista tamping coffee", "Iced coffee photographed from above"],
     visitKicker: "Find us", visitTitle: "Meet you at Harbor.", addressLabel: "Address", address: "13 Alexandru Ioan Cuza Boulevard, 011051 Bucharest",
     hoursLabel: "Opening hours", mapTitle: "Harbor Cafe on Google Maps", directions: "Open in Google Maps", instagram: "Follow us on Instagram",
     hours: [["Monday", "7:00 AM–5:00 PM"], ["Tuesday", "7:00 AM–5:00 PM"], ["Wednesday", "7:00 AM–5:00 PM"], ["Thursday", "7:00 AM–5:00 PM"], ["Friday", "7:00 AM–5:00 PM"], ["Saturday", "8:00 AM–4:00 PM"], ["Sunday", "Closed"]],
@@ -80,7 +80,7 @@ const menuItems = {
     { ro: "Iced Strawberry Matcha", en: "Iced Strawberry Matcha", noteRo: "300 ml", noteEn: "300 ml", price: "30 lei" },
     { ro: "Iced Lime Matcha Soda", en: "Iced Lime Matcha Soda", noteRo: "300 ml", noteEn: "300 ml", price: "21 lei" },
     { ro: "Socată", en: "Elderflower Soda", noteRo: "275 ml", noteEn: "275 ml", price: "21 lei" },
-    { ro: "SIPIT", en: "SIPIT", noteRo: "330 ml", noteEn: "330 ml", price: "21 lei" },
+    { ro: "Mellow Orange", en: "Mellow Orange", noteRo: "330 ml", noteEn: "330 ml", price: "24 lei" },
     { ro: "Limonadă", en: "Lemonade", noteRo: "Proaspătă și răcoritoare", noteEn: "Fresh and refreshing", price: "24 lei" },
     { ro: "Apă plată / minerală", en: "Still / Sparkling Water", noteRo: "Apă îmbuteliată", noteEn: "Bottled water", price: "12 lei" },
     { ro: "Vin", en: "Wine", noteRo: "Pahar", noteEn: "Glass", price: "25 lei" },
@@ -117,6 +117,10 @@ const galleryImages = [
   assetUrl("gallery/harbor-decor.jpg"),
   assetUrl("gallery/cold-brew-pour.jpg"),
   assetUrl("gallery/pastry-counter.jpg"),
+  assetUrl("gallery/pour-over.jpg"),
+  assetUrl("gallery/espresso-machine.jpg"),
+  assetUrl("gallery/barista-tamping.jpg"),
+  assetUrl("gallery/iced-coffee-overhead.jpg"),
 ];
 
 const instagramUrl = "https://www.instagram.com/harborcafe.bucuresti/";
