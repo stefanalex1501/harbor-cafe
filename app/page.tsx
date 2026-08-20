@@ -19,7 +19,7 @@ const copy = {
     detailBody1: "Folosim cafea de specialitate prăjită de MABÓ în București, în loturi atent selecționate din ferme transparente și sustenabile. Boabele 100% Arabica sunt alese pentru claritate, echilibru și caracterul fiecărei origini.",
     detailBody2: "Cântărim fiecare doză, urmărim timpul și ajustăm măcinătura pe parcursul zilei, pentru ca fiecare cafea să rămână echilibrată și expresivă.",
     detailBody3: "Harbor este locul pentru câteva minute fără grabă — o cafea bună, lumină caldă și timp să respiri înainte ca ziua să meargă mai departe.",
-    maboLink: "Descoperă MABÓ", expandDetail: "Afișează mai multe informații", collapseDetail: "Ascunde informațiile", menuKicker: "Meniul Harbor", menuTitle: "Simplu. Bun. Memorabil.",
+    expandDetail: "Afișează mai multe informații", collapseDetail: "Ascunde informațiile", menuKicker: "Meniul Harbor", menuTitle: "Simplu. Bun. Memorabil.",
     menuIntro: "Cafea de specialitate, băuturi reci, ciabatta și deserturi — toate într-un singur loc.",
     categories: { coffee: "Cafea caldă", notCoffee: "Rece & bar", brunch: "Ciabatta", sweet: "Deserturi" },
     galleryKicker: "Galerie", galleryTitle: <>Texturi, lumină<br />și cafea bună.</>,
@@ -43,7 +43,7 @@ const copy = {
     detailBody1: "We use specialty coffee roasted by MABÓ in Bucharest, in carefully selected batches sourced from transparent and sustainable farms. The 100% Arabica beans are chosen for clarity, balance, and the character of every origin.",
     detailBody2: "We weigh every dose, track each extraction, and adjust the grind throughout the day so every coffee remains balanced and expressive.",
     detailBody3: "Harbor is a place for a few unhurried minutes — good coffee, warm light, and time to breathe before the day moves on.",
-    maboLink: "Discover MABÓ", expandDetail: "Show more information", collapseDetail: "Hide information", menuKicker: "The Harbor menu", menuTitle: "Simple. Good. Memorable.",
+    expandDetail: "Show more information", collapseDetail: "Hide information", menuKicker: "The Harbor menu", menuTitle: "Simple. Good. Memorable.",
     menuIntro: "Specialty coffee, cold drinks, ciabatta, and sweets — all in one place.",
     categories: { coffee: "Hot coffee", notCoffee: "Cold & bar", brunch: "Ciabatta", sweet: "Sweets" },
     galleryKicker: "Gallery", galleryTitle: <>Texture, light<br />and good coffee.</>,
@@ -120,7 +120,6 @@ const galleryImages = [
 ];
 
 const instagramUrl = "https://www.instagram.com/harborcafe.bucuresti/";
-const maboUrl = "https://mabo.coffee/pages/despre-noi";
 const mapsUrl = "https://www.google.com/maps/search/?api=1&query=Bulevardul%20Alexandru%20Ioan%20Cuza%2013%2C%20011051%20Bucuresti";
 const mapsEmbedUrl = "https://www.google.com/maps?q=Bulevardul%20Alexandru%20Ioan%20Cuza%2013%2C%20011051%20Bucuresti&output=embed";
 
@@ -133,7 +132,7 @@ export default function Home() {
   const t = copy[language];
   const activeDetail = hoveredDetail ?? expandedDetail;
   const storyDetails = [
-    { title: t.detail1, body: t.detailBody1, href: maboUrl },
+    { title: t.detail1, body: t.detailBody1 },
     { title: t.detail2, body: t.detailBody2 },
     { title: t.detail3, body: t.detailBody3 },
   ];
@@ -188,7 +187,6 @@ export default function Home() {
                       <div className="story-detail-panel" id={panelId} aria-hidden={!isActive}>
                         <div className="story-detail-content">
                           <p>{detail.body}</p>
-                          {detail.href && <a href={detail.href} target="_blank" rel="noreferrer">{t.maboLink} <span aria-hidden="true">↗</span></a>}
                         </div>
                       </div>
                     </article>
