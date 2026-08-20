@@ -206,7 +206,7 @@ export default function Home() {
             {(Object.keys(t.categories) as MenuCategory[]).map((key) => <button type="button" key={key} role="tab" aria-selected={category === key} onClick={() => setCategory(key)}>{t.categories[key]}</button>)}
           </div>
           <div className="menu-list" role="tabpanel">
-            {menuItems[category].map((item, index) => <article className="menu-item" key={item.ro}><span className="item-number">{String(index + 1).padStart(2, "0")}</span><div><h3>{item[language]}</h3><p>{language === "ro" ? item.noteRo : item.noteEn}</p></div><span className="item-price">{item.price}</span></article>)}
+            {menuItems[category].map((item, index) => <article className="menu-item" key={item.ro}><span className="item-number">{String(index + 1).padStart(2, "0")}</span><div><h3>{item[language]}</h3><p>{language === "ro" ? item.noteRo : item.noteEn}</p></div><span className="item-price">{item.price.replace(/ lei$/, "")} RON</span></article>)}
           </div>
         </section>
 

@@ -36,7 +36,7 @@ test("server-renders the Harbor Cafe homepage and visit details", async () => {
   assert.match(html, /google\.com\/maps\?q=/);
   assert.match(html, /instagram\.com\/harborcafe\.bucuresti/);
   assert.match(html, /\/gallery\/latte-art-pour\.jpg/);
-  assert.match(html, /<span class="item-price">14 lei<\/span>/);
+  assert.match(html, /<span class="item-price">14 RON<\/span>/);
   assert.match(html, /aria-controls="story-detail-0"/);
   assert.match(html, /cafea de specialitate prăjită de MABÓ în București/);
   assert.ok(html.indexOf('id="visit"') < html.indexOf('id="gallery"'));
