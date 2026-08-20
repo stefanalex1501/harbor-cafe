@@ -15,7 +15,11 @@ const copy = {
     manifestoSmall: "Harbor Cafe · pauza ta de zi cu zi", storyKicker: "Povestea noastră", storyTitle: <>Un loc în care timpul<br />curge puțin mai încet.</>,
     storyBody1: "Harbor Cafe s-a născut din plăcerea lucrurilor făcute cu grijă: specialty coffee, lumină naturală și conversații care nu se grăbesc nicăieri.",
     storyBody2: "Am imaginat un spațiu cald și familiar, cu energia unui port liniștit — un punct de întâlnire în care revii pentru gust, dar rămâi pentru atmosferă.",
-    detail1: "Boabe alese", detail2: "Preparare atentă", detail3: "Momente tihnite", menuKicker: "Meniul Harbor", menuTitle: "Simplu. Bun. Memorabil.",
+    detail1: "Boabe alese", detail2: "Preparare atentă", detail3: "Momente tihnite",
+    detailBody1: "Folosim cafea de specialitate prăjită de MABÓ în București, în loturi atent selecționate din ferme transparente și sustenabile. Boabele 100% Arabica sunt alese pentru claritate, echilibru și caracterul fiecărei origini.",
+    detailBody2: "Cântărim fiecare doză, urmărim timpul și ajustăm măcinătura pe parcursul zilei, pentru ca fiecare cafea să rămână echilibrată și expresivă.",
+    detailBody3: "Harbor este locul pentru câteva minute fără grabă — o cafea bună, lumină caldă și timp să respiri înainte ca ziua să meargă mai departe.",
+    maboLink: "Descoperă MABÓ", expandDetail: "Afișează mai multe informații", collapseDetail: "Ascunde informațiile", menuKicker: "Meniul Harbor", menuTitle: "Simplu. Bun. Memorabil.",
     menuIntro: "Cafea de specialitate, băuturi reci, ciabatta și deserturi — toate într-un singur loc.",
     categories: { coffee: "Cafea caldă", notCoffee: "Rece & bar", brunch: "Ciabatta", sweet: "Deserturi" },
     galleryKicker: "Galerie", galleryTitle: <>Texturi, lumină<br />și cafea bună.</>,
@@ -35,7 +39,11 @@ const copy = {
     manifestoSmall: "Harbor Cafe · your daily pause", storyKicker: "Our story", storyTitle: <>A place where time<br />moves a little slower.</>,
     storyBody1: "Harbor Cafe grew from the joy of things made with care: specialty coffee, natural light, and conversations in no hurry to end.",
     storyBody2: "We imagined a warm, familiar space with the energy of a quiet harbor — a meeting point you return to for the taste and stay for the feeling.",
-    detail1: "Selected beans", detail2: "Careful brewing", detail3: "Unhurried moments", menuKicker: "The Harbor menu", menuTitle: "Simple. Good. Memorable.",
+    detail1: "Selected beans", detail2: "Careful brewing", detail3: "Unhurried moments",
+    detailBody1: "We use specialty coffee roasted by MABÓ in Bucharest, in carefully selected batches sourced from transparent and sustainable farms. The 100% Arabica beans are chosen for clarity, balance, and the character of every origin.",
+    detailBody2: "We weigh every dose, track each extraction, and adjust the grind throughout the day so every coffee remains balanced and expressive.",
+    detailBody3: "Harbor is a place for a few unhurried minutes — good coffee, warm light, and time to breathe before the day moves on.",
+    maboLink: "Discover MABÓ", expandDetail: "Show more information", collapseDetail: "Hide information", menuKicker: "The Harbor menu", menuTitle: "Simple. Good. Memorable.",
     menuIntro: "Specialty coffee, cold drinks, ciabatta, and sweets — all in one place.",
     categories: { coffee: "Hot coffee", notCoffee: "Cold & bar", brunch: "Ciabatta", sweet: "Sweets" },
     galleryKicker: "Gallery", galleryTitle: <>Texture, light<br />and good coffee.</>,
@@ -112,6 +120,7 @@ const galleryImages = [
 ];
 
 const instagramUrl = "https://www.instagram.com/harborcafe.bucuresti/";
+const maboUrl = "https://mabo.coffee/pages/despre-noi";
 const mapsUrl = "https://www.google.com/maps/search/?api=1&query=Bulevardul%20Alexandru%20Ioan%20Cuza%2013%2C%20011051%20Bucuresti";
 const mapsEmbedUrl = "https://www.google.com/maps?q=Bulevardul%20Alexandru%20Ioan%20Cuza%2013%2C%20011051%20Bucuresti&output=embed";
 
@@ -119,7 +128,15 @@ export default function Home() {
   const [language, setLanguage] = useState<Language>("ro");
   const [category, setCategory] = useState<MenuCategory>("coffee");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [expandedDetail, setExpandedDetail] = useState<number | null>(null);
+  const [hoveredDetail, setHoveredDetail] = useState<number | null>(null);
   const t = copy[language];
+  const activeDetail = hoveredDetail ?? expandedDetail;
+  const storyDetails = [
+    { title: t.detail1, body: t.detailBody1, href: maboUrl },
+    { title: t.detail2, body: t.detailBody2 },
+    { title: t.detail3, body: t.detailBody3 },
+  ];
   const navItems = [["story", t.story], ["menu", t.menu], ["visit", t.visit], ["gallery", t.gallery]] as const;
   const changeLanguage = () => setLanguage((current) => (current === "ro" ? "en" : "ro"));
 
@@ -157,7 +174,27 @@ export default function Home() {
           <div className="story-grid">
             <div className="story-heading"><h2>{t.storyTitle}</h2><div className="story-image-wrap"><img src={galleryImages[0]} alt={t.galleryAlts[0]} loading="lazy" /><span className="image-label">Harbor mood / 01</span></div></div>
             <div className="story-copy"><p className="lead">{t.storyBody1}</p><p>{t.storyBody2}</p>
-              <div className="story-details">{[t.detail1, t.detail2, t.detail3].map((detail, index) => <div key={detail}><span>0{index + 1}</span>{detail}</div>)}</div>
+              <div className="story-details">
+                {storyDetails.map((detail, index) => {
+                  const isActive = activeDetail === index;
+                  const panelId = `story-detail-${index}`;
+                  return (
+                    <article className={`story-detail ${isActive ? "is-expanded" : ""}`} key={detail.title} onPointerEnter={(event) => event.pointerType === "mouse" && setHoveredDetail(index)} onPointerLeave={(event) => event.pointerType === "mouse" && setHoveredDetail(null)}>
+                      <button type="button" className="story-detail-trigger" aria-expanded={isActive} aria-controls={panelId} aria-label={`${detail.title}: ${isActive ? t.collapseDetail : t.expandDetail}`} onClick={() => setExpandedDetail((current) => current === index ? null : index)}>
+                        <span className="story-detail-number">0{index + 1}</span>
+                        <strong>{detail.title}</strong>
+                        <span className="story-detail-icon" aria-hidden="true">+</span>
+                      </button>
+                      <div className="story-detail-panel" id={panelId} aria-hidden={!isActive}>
+                        <div className="story-detail-content">
+                          <p>{detail.body}</p>
+                          {detail.href && <a href={detail.href} target="_blank" rel="noreferrer">{t.maboLink} <span aria-hidden="true">↗</span></a>}
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </section>
