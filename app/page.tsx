@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 
 type Language = "ro" | "en";
 type MenuCategory = "coffee" | "notCoffee" | "brunch" | "sweet";
 type SectionId = "top" | "story" | "menu" | "visit" | "gallery";
+type FoodTag = "milk" | "gluten" | "eggs" | "nuts" | "alcoholFree" | "plantOption";
 
 const copy = {
   ro: {
@@ -22,13 +23,18 @@ const copy = {
     detailBody3: "Harbor este locul pentru câteva minute fără grabă — o cafea bună, lumină caldă și timp să respiri înainte ca ziua să meargă mai departe.",
     expandDetail: "Afișează mai multe informații", collapseDetail: "Ascunde informațiile", menuKicker: "Meniul Harbor", menuTitle: "Simplu. Bun. Memorabil.",
     menuIntro: "Cafea de specialitate, băuturi reci, ciabatta și deserturi — toate într-un singur loc.",
+    foodInfo: "Informații alimentare", showFoodInfo: "Vezi informațiile alimentare", hideFoodInfo: "Ascunde informațiile alimentare",
+    foodInfoIntro: "Marcajele sunt orientative și se bazează pe rețetele obișnuite. Ingredientele și riscul de contaminare încrucișată pot varia; dacă ai alergii sau intoleranțe, confirmă întotdeauna cu barista înainte de comandă.",
+    plantInfo: "Alternativele vegetale sunt disponibile în funcție de stoc.",
+    foodTags: { milk: "Lapte", gluten: "Gluten", eggs: "Ouă", nuts: "Fructe cu coajă", alcoholFree: "Fără alcool", plantOption: "Opțiune vegetală" },
+    itemFoodInfo: "Informații orientative despre ingrediente",
     categories: { coffee: "Cafea caldă", notCoffee: "Rece & bar", brunch: "Ciabatta", sweet: "Deserturi" },
     galleryKicker: "Galerie", galleryTitle: <>Texturi, lumină<br />și cafea bună.</>,
     galleryNote: "O privire în atmosfera Harbor Cafe — lumină caldă, cafea pregătită cu grijă și ceva bun alături.",
     viewPhoto: "Deschide fotografia", lightboxLabel: "Galeria Harbor Cafe", closeGallery: "Închide galeria", previousPhoto: "Fotografia anterioară", nextPhoto: "Fotografia următoare", photoOf: "din",
     galleryAlts: ["Latte art pregătit la Harbor Cafe", "Cafea măcinată manual", "Vitrina Harbor Cafe cu băuturi și gustări", "Cafea rece cu portocală", "Selecție de cafea de specialitate", "Decorul cu influențe nautice Harbor Cafe", "Cold brew turnat peste gheață", "Produse proaspete în vitrina Harbor Cafe", "Cafea preparată prin metoda V60", "Espressorul Harbor Cafe", "Barista tasând cafeaua", "Cafea rece fotografiată de sus", "Socată și croissante pe tejghea", "Selecție de cafea MABÓ și croissante", "Cafea măcinată pentru espresso", "Barista distribuind cafeaua în portafiltru", "Espresso proaspăt extras", "Espresso servit cu apă", "Espresso și croissante pe tejghea"],
     visitKicker: "Găsește-ne", visitTitle: "Ne vedem la Harbor.", addressLabel: "Adresă", address: "Bulevardul Alexandru Ioan Cuza 13, 011051 București",
-    hoursLabel: "Program", mapTitle: "Harbor Cafe pe Google Maps", directions: "Deschide în Google Maps", instagram: "Urmărește-ne pe Instagram",
+    hoursLabel: "Program", mapTitle: "Harbor Cafe pe Google Maps", directions: "Deschide în Google Maps", copyAddress: "Copiază adresa", addressCopied: "Adresă copiată", addressCopyFailed: "Selectează adresa", instagram: "Urmărește-ne pe Instagram",
     quickMenu: "Meniu", quickMap: "Hartă", openNow: "Deschis acum", closedNow: "Închis acum", opensAt: "deschide la", until: "până la", checkingHours: "Verificăm programul",
     hours: [["Luni", "07:00–17:00"], ["Marți", "07:00–17:00"], ["Miercuri", "07:00–17:00"], ["Joi", "07:00–17:00"], ["Vineri", "07:00–17:00"], ["Sâmbătă", "08:00–16:00"], ["Duminică", "Închis"]],
     footerLine: "Cafea bună. Ritm domol.", footerNote: "Harbor Cafe · Toate drepturile rezervate",
@@ -48,18 +54,25 @@ const copy = {
     detailBody3: "Harbor is a place for a few unhurried minutes — good coffee, warm light, and time to breathe before the day moves on.",
     expandDetail: "Show more information", collapseDetail: "Hide information", menuKicker: "The Harbor menu", menuTitle: "Simple. Good. Memorable.",
     menuIntro: "Specialty coffee, cold drinks, ciabatta, and sweets — all in one place.",
+    foodInfo: "Food information", showFoodInfo: "View food information", hideFoodInfo: "Hide food information",
+    foodInfoIntro: "Markers are a guide based on the usual recipes. Ingredients and cross-contamination risks may vary; if you have allergies or intolerances, always confirm with the barista before ordering.",
+    plantInfo: "Plant-based alternatives are available depending on stock.",
+    foodTags: { milk: "Milk", gluten: "Gluten", eggs: "Eggs", nuts: "Tree nuts", alcoholFree: "Alcohol-free", plantOption: "Plant option" },
+    itemFoodInfo: "Indicative ingredient information",
     categories: { coffee: "Hot coffee", notCoffee: "Cold & bar", brunch: "Ciabatta", sweet: "Sweets" },
     galleryKicker: "Gallery", galleryTitle: <>Texture, light<br />and good coffee.</>,
     galleryNote: "A glimpse into Harbor Cafe — warm light, carefully made coffee, and something good on the side.",
     viewPhoto: "Open photo", lightboxLabel: "Harbor Cafe gallery", closeGallery: "Close gallery", previousPhoto: "Previous photo", nextPhoto: "Next photo", photoOf: "of",
     galleryAlts: ["Latte art being made at Harbor Cafe", "Coffee being ground by hand", "The Harbor Cafe counter with drinks and snacks", "Iced coffee with orange", "A selection of specialty coffee", "Harbor Cafe's nautical interior", "Cold brew poured over ice", "Fresh products at the Harbor Cafe counter", "Coffee brewed with the V60 method", "The Harbor Cafe espresso machine", "A barista tamping coffee", "Iced coffee photographed from above", "Elderflower soda and croissants on the counter", "A MABÓ coffee selection with croissants", "Coffee being ground for espresso", "A barista distributing coffee in a portafilter", "Freshly extracted espresso", "Espresso served with water", "Espresso and croissants on the counter"],
     visitKicker: "Find us", visitTitle: "Meet you at Harbor.", addressLabel: "Address", address: "13 Alexandru Ioan Cuza Boulevard, 011051 Bucharest",
-    hoursLabel: "Opening hours", mapTitle: "Harbor Cafe on Google Maps", directions: "Open in Google Maps", instagram: "Follow us on Instagram",
+    hoursLabel: "Opening hours", mapTitle: "Harbor Cafe on Google Maps", directions: "Open in Google Maps", copyAddress: "Copy address", addressCopied: "Address copied", addressCopyFailed: "Select the address", instagram: "Follow us on Instagram",
     quickMenu: "Menu", quickMap: "Map", openNow: "Open now", closedNow: "Closed now", opensAt: "opens at", until: "until", checkingHours: "Checking hours",
     hours: [["Monday", "7:00 AM–5:00 PM"], ["Tuesday", "7:00 AM–5:00 PM"], ["Wednesday", "7:00 AM–5:00 PM"], ["Thursday", "7:00 AM–5:00 PM"], ["Friday", "7:00 AM–5:00 PM"], ["Saturday", "8:00 AM–4:00 PM"], ["Sunday", "Closed"]],
     footerLine: "Good coffee. Easy rhythm.", footerNote: "Harbor Cafe · All rights reserved",
   },
 } as const;
+
+const menuCategoryKeys: MenuCategory[] = ["coffee", "notCoffee", "brunch", "sweet"];
 
 const menuItems = {
   coffee: [
@@ -111,31 +124,52 @@ const menuItems = {
   ],
 } as const;
 
+const milkDrinks = new Set([
+  "Cortado", "Cappuccino", "Flat White", "Latte", "Ciocolată caldă", "Matcha Latte", "Babyccino",
+  "Cold Brew Latte", "Iced Latte", "Iced Strawberry Matcha",
+]);
+
+function getFoodTags(category: MenuCategory, itemName: string): FoodTag[] {
+  if (milkDrinks.has(itemName)) return ["milk", "plantOption"];
+  if (category === "brunch") return itemName === "Cotto" ? ["gluten", "milk", "nuts"] : ["gluten", "milk"];
+  if (category === "sweet") return itemName === "Pricomigdale" ? ["nuts", "eggs"] : ["gluten", "milk", "eggs"];
+  if (itemName === "Cocktail F.A.") return ["alcoholFree"];
+  return [];
+}
+
 const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 
-const galleryImages = [
-  assetUrl("gallery/latte-art-pour.jpg"),
-  assetUrl("gallery/hand-grinder.jpg"),
-  assetUrl("gallery/harbor-counter.jpg"),
-  assetUrl("gallery/iced-coffee.jpg"),
-  assetUrl("gallery/coffee-shelf.jpg"),
-  assetUrl("gallery/harbor-decor.jpg"),
-  assetUrl("gallery/cold-brew-pour.jpg"),
-  assetUrl("gallery/pastry-counter.jpg"),
-  assetUrl("gallery/pour-over.jpg"),
-  assetUrl("gallery/espresso-machine.jpg"),
-  assetUrl("gallery/barista-tamping.jpg"),
-  assetUrl("gallery/iced-coffee-overhead.jpg"),
-  assetUrl("gallery/socata-croissants.jpg"),
-  assetUrl("gallery/mabo-coffee-selection.jpg"),
-  assetUrl("gallery/grinder-in-action.jpg"),
-  assetUrl("gallery/coffee-distribution.jpg"),
-  assetUrl("gallery/espresso-extraction.jpg"),
-  assetUrl("gallery/espresso-service.jpg"),
-  assetUrl("gallery/espresso-and-croissants.jpg"),
-];
+const galleryImageData = [
+  { name: "latte-art-pour", width: 982, height: 1600 },
+  { name: "hand-grinder", width: 1066, height: 1600 },
+  { name: "harbor-counter", width: 1600, height: 986 },
+  { name: "iced-coffee", width: 1066, height: 1600 },
+  { name: "coffee-shelf", width: 1600, height: 1066 },
+  { name: "harbor-decor", width: 1600, height: 1004 },
+  { name: "cold-brew-pour", width: 1192, height: 1600 },
+  { name: "pastry-counter", width: 1600, height: 1004 },
+  { name: "pour-over", width: 946, height: 2048 },
+  { name: "espresso-machine", width: 1600, height: 1066 },
+  { name: "barista-tamping", width: 1066, height: 1600 },
+  { name: "iced-coffee-overhead", width: 1600, height: 1066 },
+  { name: "socata-croissants", width: 1600, height: 1066 },
+  { name: "mabo-coffee-selection", width: 1600, height: 1066 },
+  { name: "grinder-in-action", width: 1066, height: 1600 },
+  { name: "coffee-distribution", width: 1600, height: 1066 },
+  { name: "espresso-extraction", width: 1066, height: 1600 },
+  { name: "espresso-service", width: 1600, height: 1066 },
+  { name: "espresso-and-croissants", width: 1600, height: 1066 },
+] as const;
+
+const galleryImages = galleryImageData.map(({ name, width, height }) => ({
+  src: assetUrl(`gallery/${name}.jpg`),
+  srcSet: `${assetUrl(`gallery/${name}-480.jpg`)} 480w, ${assetUrl(`gallery/${name}-900.jpg`)} 900w, ${assetUrl(`gallery/${name}.jpg`)} ${width}w`,
+  width,
+  height,
+}));
 
 const instagramUrl = "https://www.instagram.com/harborcafe.bucuresti/";
+const physicalAddress = "Bulevardul Alexandru Ioan Cuza 13, 011051 București";
 const mapsUrl = "https://www.google.com/maps/search/?api=1&query=Bulevardul%20Alexandru%20Ioan%20Cuza%2013%2C%20011051%20Bucuresti";
 const mapsEmbedUrl = "https://www.google.com/maps?q=Bulevardul%20Alexandru%20Ioan%20Cuza%2013%2C%20011051%20Bucuresti&output=embed";
 const sectionIds: SectionId[] = ["top", "story", "menu", "visit", "gallery"];
@@ -184,8 +218,11 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState<SectionId>("top");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [openingStatus, setOpeningStatus] = useState<OpeningStatus | null>(null);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
+  const [foodInfoOpen, setFoodInfoOpen] = useState(false);
   const lightboxCloseRef = useRef<HTMLButtonElement>(null);
   const swipeStartX = useRef<number | null>(null);
+  const copyResetTimer = useRef<number | null>(null);
   const t = copy[language];
   const isLightboxOpen = lightboxIndex !== null;
   const activeDetail = hoveredDetail ?? expandedDetail;
@@ -199,12 +236,53 @@ export default function Home() {
   const changeLanguage = () => setLanguage((current) => (current === "ro" ? "en" : "ro"));
   const showPreviousPhoto = () => setLightboxIndex((current) => current === null ? null : (current - 1 + galleryImages.length) % galleryImages.length);
   const showNextPhoto = () => setLightboxIndex((current) => current === null ? null : (current + 1) % galleryImages.length);
+  const handleMenuTabKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>, currentCategory: MenuCategory) => {
+    const currentIndex = menuCategoryKeys.indexOf(currentCategory);
+    let nextIndex: number | null = null;
+    if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % menuCategoryKeys.length;
+    if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + menuCategoryKeys.length) % menuCategoryKeys.length;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = menuCategoryKeys.length - 1;
+    if (nextIndex === null) return;
+    event.preventDefault();
+    const nextCategory = menuCategoryKeys[nextIndex];
+    setCategory(nextCategory);
+    document.getElementById(`menu-tab-${nextCategory}`)?.focus();
+  };
+  const copyAddressToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(physicalAddress);
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("failed");
+    }
+    if (copyResetTimer.current !== null) window.clearTimeout(copyResetTimer.current);
+    copyResetTimer.current = window.setTimeout(() => setCopyStatus("idle"), 2400);
+  };
 
   useEffect(() => {
     const updateStatus = () => setOpeningStatus(getOpeningStatus());
     updateStatus();
     const interval = window.setInterval(updateStatus, 60_000);
     return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    const registerServiceWorker = () => {
+      navigator.serviceWorker.register(assetUrl("sw.js")).catch(() => undefined);
+    };
+    if (document.readyState === "complete") registerServiceWorker();
+    else window.addEventListener("load", registerServiceWorker, { once: true });
+    return () => window.removeEventListener("load", registerServiceWorker);
+  }, []);
+
+  useEffect(() => () => {
+    if (copyResetTimer.current !== null) window.clearTimeout(copyResetTimer.current);
   }, []);
 
   useEffect(() => {
@@ -243,6 +321,20 @@ export default function Home() {
       if (event.key === "Escape") setLightboxIndex(null);
       if (event.key === "ArrowLeft") setLightboxIndex((current) => current === null ? null : (current - 1 + galleryImages.length) % galleryImages.length);
       if (event.key === "ArrowRight") setLightboxIndex((current) => current === null ? null : (current + 1) % galleryImages.length);
+      if (event.key === "Tab") {
+        const dialog = document.querySelector<HTMLElement>(".lightbox");
+        const controls = dialog ? Array.from(dialog.querySelectorAll<HTMLButtonElement>("button:not([disabled])")) : [];
+        const firstControl = controls[0];
+        const lastControl = controls.at(-1);
+        if (!firstControl || !lastControl) return;
+        if (event.shiftKey && document.activeElement === firstControl) {
+          event.preventDefault();
+          lastControl.focus();
+        } else if (!event.shiftKey && document.activeElement === lastControl) {
+          event.preventDefault();
+          firstControl.focus();
+        }
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => {
@@ -267,6 +359,13 @@ export default function Home() {
       </header>
 
       <nav className="desktop-navigation" aria-label={language === "ro" ? "Navigație pe secțiuni" : "Section navigation"}>
+        <div className={`desktop-opening-status ${openingStatus?.isOpen ? "is-open" : "is-closed"}`} aria-live="polite">
+          <span className="desktop-status-dot" aria-hidden="true" />
+          <div>
+            <strong>{openingStatus ? (openingStatus.isOpen ? t.openNow : t.closedNow) : t.checkingHours}</strong>
+            {openingStatus?.nextTime && <small>{openingStatus.phase === "during" ? t.until : t.opensAt} {openingStatus.nextTime}</small>}
+          </div>
+        </div>
         {sideNavItems.map(([id, label], index) => (
           <a key={id} href={`#${id}`} aria-current={activeSection === id ? "location" : undefined} onClick={() => setActiveSection(id)}>
             <span className="desktop-nav-number">{String(index + 1).padStart(2, "0")}</span>
@@ -293,7 +392,7 @@ export default function Home() {
         <section className="story-section" id="story">
           <div className="section-kicker"><span>02</span>{t.storyKicker}</div>
           <div className="story-grid">
-            <div className="story-heading"><h2>{t.storyTitle}</h2><div className="story-image-wrap"><img src={galleryImages[0]} alt={t.galleryAlts[0]} loading="lazy" /><span className="image-label">Harbor mood / 01</span></div></div>
+            <div className="story-heading"><h2>{t.storyTitle}</h2><div className="story-image-wrap"><img src={galleryImages[0].src} srcSet={galleryImages[0].srcSet} sizes="(max-width: 760px) 91vw, 40vw" width={galleryImages[0].width} height={galleryImages[0].height} alt={t.galleryAlts[0]} loading="lazy" /><span className="image-label">Harbor mood / 01</span></div></div>
             <div className="story-copy"><p className="lead">{t.storyBody1}</p><p>{t.storyBody2}</p>
               <div className="story-details">
                 {storyDetails.map((detail, index) => {
@@ -322,18 +421,32 @@ export default function Home() {
         <section className="menu-section" id="menu">
           <div className="section-kicker light"><span>03</span>{t.menuKicker}</div>
           <div className="menu-heading"><div><h2>{t.menuTitle}</h2></div><p>{t.menuIntro}</p></div>
-          <div className="menu-tabs" role="tablist" aria-label={t.menuKicker}>
-            {(Object.keys(t.categories) as MenuCategory[]).map((key) => <button type="button" key={key} role="tab" aria-selected={category === key} onClick={() => setCategory(key)}>{t.categories[key]}</button>)}
+          <div className="food-information">
+            <button type="button" className="food-information-trigger" aria-expanded={foodInfoOpen} aria-controls="food-information-panel" onClick={() => setFoodInfoOpen((open) => !open)}>
+              <span>{t.foodInfo}</span><span aria-hidden="true">{foodInfoOpen ? "−" : "+"}</span>
+              <small>{foodInfoOpen ? t.hideFoodInfo : t.showFoodInfo}</small>
+            </button>
+            <div className="food-information-panel" id="food-information-panel" hidden={!foodInfoOpen}>
+              <p>{t.foodInfoIntro}</p>
+              <p>{t.plantInfo}</p>
+              <ul aria-label={t.foodInfo}>{(Object.keys(t.foodTags) as FoodTag[]).map((tag) => <li key={tag}>{t.foodTags[tag]}</li>)}</ul>
+            </div>
           </div>
-          <div className="menu-list" role="tabpanel">
-            {menuItems[category].map((item, index) => <article className="menu-item" key={item.ro}><span className="item-number">{String(index + 1).padStart(2, "0")}</span><div><h3>{item[language]}</h3><p>{language === "ro" ? item.noteRo : item.noteEn}</p></div><span className="item-price">{`${item.price.replace(/ lei$/, "")} RON`}</span></article>)}
+          <div className="menu-tabs" role="tablist" aria-label={t.menuKicker}>
+            {menuCategoryKeys.map((key) => <button type="button" id={`menu-tab-${key}`} key={key} role="tab" aria-selected={category === key} aria-controls="menu-panel" tabIndex={category === key ? 0 : -1} onClick={() => setCategory(key)} onKeyDown={(event) => handleMenuTabKeyDown(event, key)}>{t.categories[key]}</button>)}
+          </div>
+          <div className="menu-list" id="menu-panel" key={category} role="tabpanel" aria-labelledby={`menu-tab-${category}`} tabIndex={0}>
+            {menuItems[category].map((item, index) => {
+              const foodTags = getFoodTags(category, item.ro);
+              return <article className="menu-item" key={item.ro}><span className="item-number">{String(index + 1).padStart(2, "0")}</span><div><h3>{item[language]}</h3><p>{language === "ro" ? item.noteRo : item.noteEn}</p>{foodTags.length > 0 && <ul className="item-tags" aria-label={t.itemFoodInfo}>{foodTags.map((tag) => <li key={tag}>{t.foodTags[tag]}</li>)}</ul>}</div><span className="item-price">{`${item.price.replace(/ lei$/, "")} RON`}</span></article>;
+            })}
           </div>
         </section>
 
         <section className="visit-section" id="visit">
           <div className="visit-copy"><div className="section-kicker light"><span>04</span>{t.visitKicker}</div><h2>{t.visitTitle}</h2>
             <div className="visit-details">
-              <div className="address-block"><span>{t.addressLabel}</span><address>{t.address}</address><a href={mapsUrl} target="_blank" rel="noreferrer">{t.directions} <span aria-hidden="true">↗</span></a></div>
+              <div className="address-block"><span>{t.addressLabel}</span><address>{t.address}</address><div className="address-actions"><a href={mapsUrl} target="_blank" rel="noreferrer">{t.directions} <span aria-hidden="true">↗</span></a><button type="button" className="address-copy" onClick={copyAddressToClipboard} aria-live="polite">{copyStatus === "copied" ? t.addressCopied : copyStatus === "failed" ? t.addressCopyFailed : t.copyAddress}</button></div></div>
               <div className="hours-block"><span>{t.hoursLabel}</span><dl>{t.hours.map(([day, time]) => <div key={day}><dt>{day}</dt><dd>{time}</dd></div>)}</dl></div>
             </div>
             <a className="instagram-link" href={instagramUrl} target="_blank" rel="noreferrer" aria-label={`${t.instagram}: @harborcafe.bucuresti`}><span>{t.instagram}</span><strong>@harborcafe.bucuresti</strong><span aria-hidden="true">↗</span></a>
@@ -344,7 +457,7 @@ export default function Home() {
         <section className="gallery-section" id="gallery">
           <div className="section-kicker"><span>05</span>{t.galleryKicker}</div>
           <div className="gallery-heading"><h2>{t.galleryTitle}</h2><p>{t.galleryNote}</p></div>
-          <div className="gallery-grid">{galleryImages.map((src, index) => <figure key={src} className={`gallery-item gallery-item-${index + 1}`}><button type="button" className="gallery-image-button" aria-label={`${t.viewPhoto}: ${t.galleryAlts[index]}`} aria-haspopup="dialog" onClick={() => setLightboxIndex(index)}><img src={src} alt={t.galleryAlts[index]} loading="lazy" /></button><figcaption><span>{String(index + 1).padStart(2, "0")}</span> Harbor Cafe</figcaption></figure>)}</div>
+          <div className="gallery-grid">{galleryImages.map((image, index) => <figure key={image.src} className={`gallery-item gallery-item-${index + 1}`}><button type="button" className="gallery-image-button" aria-label={`${t.viewPhoto}: ${t.galleryAlts[index]}`} aria-haspopup="dialog" onClick={() => setLightboxIndex(index)}><img src={image.src} srcSet={image.srcSet} sizes="(max-width: 760px) 91vw, 55vw" width={image.width} height={image.height} alt={t.galleryAlts[index]} loading="lazy" /></button><figcaption><span>{String(index + 1).padStart(2, "0")}</span> Harbor Cafe</figcaption></figure>)}</div>
         </section>
       </main>
 
@@ -372,7 +485,7 @@ export default function Home() {
           if (Math.abs(distance) < 45) return;
           if (distance > 0) showNextPhoto(); else showPreviousPhoto();
         }} onPointerCancel={() => { swipeStartX.current = null; }}>
-          <img src={galleryImages[lightboxIndex]} alt={t.galleryAlts[lightboxIndex]} />
+          <img src={galleryImages[lightboxIndex].src} srcSet={galleryImages[lightboxIndex].srcSet} sizes="100vw" width={galleryImages[lightboxIndex].width} height={galleryImages[lightboxIndex].height} alt={t.galleryAlts[lightboxIndex]} />
           <figcaption><span>{String(lightboxIndex + 1).padStart(2, "0")} {t.photoOf} {galleryImages.length}</span><span>{t.galleryAlts[lightboxIndex]}</span></figcaption>
         </figure>
         <button type="button" className="lightbox-nav lightbox-next" aria-label={t.nextPhoto} onClick={showNextPhoto}>→</button>

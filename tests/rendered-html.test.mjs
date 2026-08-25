@@ -41,20 +41,40 @@ test("server-renders the Harbor Cafe homepage and visit details", async () => {
   assert.match(html, /class="mobile-quickbar"/);
   assert.match(html, /aria-haspopup="dialog"/);
   assert.match(html, /class="desktop-navigation"/);
+  assert.match(html, /desktop-opening-status/);
   assert.match(html, /aria-current="location"/);
+  assert.match(html, /Copiază adresa/);
+  assert.match(html, /latte-art-pour-480\.jpg 480w/);
   assert.match(html, /cafea de specialitate prăjită de MABÓ în București/);
+  assert.match(html, /aria-controls="food-information-panel"/);
+  assert.match(html, /aria-controls="menu-panel"/);
+  assert.match(html, /aria-labelledby="menu-tab-coffee"/);
+  assert.match(html, /Opțiune vegetală/);
+  assert.match(html, /confirmă întotdeauna cu barista/);
   assert.ok(html.indexOf('id="visit"') < html.indexOf('id="gallery"'));
   assert.doesNotMatch(html, /va fi anunțat|to be announced/i);
 });
 
 test("keeps the project detached from Sites hosting", async () => {
-  const [page, viteConfig] = await Promise.all([
+  const [page, viteConfig, index] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../vite.config.ts", import.meta.url), "utf8"),
+    readFile(new URL("../index.html", import.meta.url), "utf8"),
   ]);
 
   assert.match(page, /mapsEmbedUrl/);
   assert.match(page, /@harborcafe\.bucuresti/);
+  assert.match(index, /viewport-fit=cover/);
+  assert.match(index, /name="theme-color" content="#051d2d"/);
+  assert.match(index, /rel="manifest" href="\.\/manifest\.webmanifest"/);
+  assert.match(page, /navigator\.serviceWorker\.register\(assetUrl\("sw\.js"\)\)/);
   assert.doesNotMatch(viteConfig, /sites-vite-plugin|hosting\.json|sites\(\)/);
+  await Promise.all([
+    access(new URL("../public/manifest.webmanifest", import.meta.url)),
+    access(new URL("../public/sw.js", import.meta.url)),
+    access(new URL("../public/icon-192.png", import.meta.url)),
+    access(new URL("../public/icon-512.png", import.meta.url)),
+    access(new URL("../public/apple-touch-icon.png", import.meta.url)),
+  ]);
   await assert.rejects(access(new URL("../.openai/hosting.json", import.meta.url)));
 });

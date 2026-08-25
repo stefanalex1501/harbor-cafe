@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#051d2d",
+  colorScheme: "dark",
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
@@ -13,7 +20,9 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(origin),
     title: "Harbor Cafe — Cafea bună. Ritm domol.",
     description: "Harbor Cafe București — specialty coffee, Prosecco și lumină naturală, pe Bulevardul Alexandru Ioan Cuza 13.",
-    icons: { icon: "/harbor-cafe-logo.png", shortcut: "/harbor-cafe-logo.png" },
+    manifest: "/manifest.webmanifest",
+    icons: { icon: "/harbor-cafe-logo.png", shortcut: "/harbor-cafe-logo.png", apple: "/apple-touch-icon.png" },
+    appleWebApp: { capable: true, title: "Harbor Cafe", statusBarStyle: "black-translucent" },
     openGraph: {
       type: "website",
       locale: "ro_RO",
