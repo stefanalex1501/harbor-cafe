@@ -77,6 +77,7 @@ test("keeps the project detached from Sites hosting", async () => {
   assert.match(index, /viewport-fit=cover/);
   assert.match(index, /name="theme-color" content="#051d2d"/);
   assert.match(index, /rel="manifest" href="\.\/manifest\.webmanifest"/);
+  assert.match(index, /rel="icon" type="image\/png" sizes="192x192" href="\.\/icon-192\.png"/);
   assert.match(page, /navigator\.serviceWorker\.register\(assetUrl\("sw\.js"\)\)/);
   assert.match(page, /maps\.app\.goo\.gl\/T3QEAoutTwmY8DQp6/);
   assert.match(page, /maps\.app\.goo\.gl\/QAcQhoQasSwsH5qH6/);

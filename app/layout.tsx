@@ -21,7 +21,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "Harbor Cafe — Cafea bună. Ritm domol.",
     description: "Harbor Cafe București — specialty coffee, Prosecco și lumină naturală, pe Bulevardul Alexandru Ioan Cuza 13.",
     manifest: "/manifest.webmanifest",
-    icons: { icon: "/harbor-cafe-logo.png", shortcut: "/harbor-cafe-logo.png", apple: "/apple-touch-icon.png" },
+    icons: {
+      icon: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+      shortcut: "/icon-192.png",
+      apple: "/apple-touch-icon.png",
+    },
     appleWebApp: { capable: true, title: "Harbor Cafe", statusBarStyle: "black-translucent" },
     openGraph: {
       type: "website",
