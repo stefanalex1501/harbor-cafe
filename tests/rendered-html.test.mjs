@@ -51,6 +51,16 @@ test("server-renders the Harbor Cafe homepage and visit details", async () => {
   assert.match(html, /aria-labelledby="menu-tab-coffee"/);
   assert.match(html, /Opțiune vegetală/);
   assert.match(html, /confirmă întotdeauna cu barista/);
+  assert.match(html, /Cuvinte lăsate/);
+  assert.match(html, /O cafenea super cozy/);
+  assert.match(html, /Cappuccino-ul a fost foarte bun/);
+  assert.match(html, /Miriam 18/);
+  assert.match(html, /Deschide recenzia/);
+  assert.match(html, /Recenzie publicată pe Google/);
+  assert.match(html, /Vezi toate recenziile pe Google Maps/);
+  assert.match(html, /href="#reviews"/);
+  assert.ok(html.indexOf('id="menu"') < html.indexOf('id="reviews"'));
+  assert.ok(html.indexOf('id="reviews"') < html.indexOf('id="visit"'));
   assert.ok(html.indexOf('id="visit"') < html.indexOf('id="gallery"'));
   assert.doesNotMatch(html, /va fi anunțat|to be announced/i);
 });
@@ -68,6 +78,12 @@ test("keeps the project detached from Sites hosting", async () => {
   assert.match(index, /name="theme-color" content="#051d2d"/);
   assert.match(index, /rel="manifest" href="\.\/manifest\.webmanifest"/);
   assert.match(page, /navigator\.serviceWorker\.register\(assetUrl\("sw\.js"\)\)/);
+  assert.match(page, /maps\.app\.goo\.gl\/T3QEAoutTwmY8DQp6/);
+  assert.match(page, /maps\.app\.goo\.gl\/QAcQhoQasSwsH5qH6/);
+  assert.match(page, /pickRandomReviews/);
+  assert.match(page, /google\.com\/maps\/place\/Harbor\+Cafe/);
+  assert.match(page, /scrollToSection/);
+  assert.match(page, /window\.scrollTo/);
   assert.doesNotMatch(viteConfig, /sites-vite-plugin|hosting\.json|sites\(\)/);
   await Promise.all([
     access(new URL("../public/manifest.webmanifest", import.meta.url)),
