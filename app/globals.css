@@ -273,7 +273,7 @@ footer > p a { color: rgba(243,237,225,.72); }
 
 .lightbox { position: fixed; inset: 0; z-index: 100; width: 100vw; height: 100dvh; overflow: hidden; display: grid; grid-template-columns: 72px minmax(0, 1fr) 72px; grid-template-rows: minmax(0, 1fr); align-items: stretch; padding: 4.5rem 2.5vw 2rem; background: rgba(3, 14, 22, .96); color: var(--cream); }
 .lightbox-content { width: 100%; height: 100%; min-width: 0; min-height: 0; margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 1rem; justify-items: center; touch-action: pan-y; }
-.lightbox-content picture { display: contents; }
+.lightbox-content picture { width: 100%; height: 100%; min-width: 0; min-height: 0; display: grid; place-items: center; }
 .lightbox-content img { width: auto; height: auto; max-width: 100%; max-height: 100%; min-width: 0; min-height: 0; place-self: center; object-fit: contain; }
 .lightbox-content figcaption { width: 100%; display: flex; justify-content: space-between; gap: 1.5rem; color: rgba(243,237,225,.68); font-size: .68rem; line-height: 1.45; letter-spacing: .1em; text-transform: uppercase; }
 .lightbox-content figcaption span:last-child { text-align: right; }
@@ -347,6 +347,7 @@ footer > p a { color: rgba(243,237,225,.72); }
   .story-detail-trigger strong { font-size: .76rem; }
   .story-detail-content p { margin-left: 42px; margin-right: .25rem; font-size: .94rem; }
   .menu-section { overflow: visible; }
+  .menu-section::before { right: 0; }
   .food-information-trigger { min-height: 60px; }
   .food-information-panel { padding-bottom: 1.15rem; }
   .food-information-panel p { font-size: .76rem; }
@@ -363,6 +364,7 @@ footer > p a { color: rgba(243,237,225,.72); }
   .gallery-item-1 { margin-top: 0; }
   .gallery-item { overflow: visible; }
   .gallery-image-button { overflow: visible; }
+  .gallery-image-button:hover img { transform: none; }
   .gallery-item-1 img, .gallery-item-2 img, .gallery-item-3 img, .gallery-item-4 img, .gallery-item-5 img, .gallery-item-6 img, .gallery-item-7 img, .gallery-item-8 img, .gallery-item-9 img, .gallery-item-10 img, .gallery-item-11 img, .gallery-item-12 img, .gallery-item-13 img, .gallery-item-14 img, .gallery-item-15 img, .gallery-item-16 img, .gallery-item-17 img, .gallery-item-18 img, .gallery-item-19 img { width: 100%; height: auto; aspect-ratio: auto; object-fit: contain; }
   .visit-details { grid-template-columns: 1fr; }
   .map-embed { min-height: 470px; }
