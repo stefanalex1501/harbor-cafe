@@ -33,7 +33,7 @@ const copy = {
     galleryNote: "O privire în atmosfera Harbor Cafe — lumină caldă, cafea pregătită cu grijă și ceva bun alături.",
     viewPhoto: "Deschide fotografia", lightboxLabel: "Galeria Harbor Cafe", closeGallery: "Închide galeria", previousPhoto: "Fotografia anterioară", nextPhoto: "Fotografia următoare", photoOf: "din",
     reviewsKicker: "Recenzii Google", reviewsTitle: <>Cuvinte lăsate<br />de oaspeții noștri.</>,
-    reviewsIntro: "Recenzii publice, păstrate exact în forma în care au fost scrise.", googleReview: "Recenzie publicată pe Google", ratingLabel: "5 din 5 stele", openReview: "Deschide recenzia", viewAllReviews: "Vezi toate recenziile pe Google Maps",
+    reviewsIntro: "Recenzii publice, păstrate exact în forma în care au fost scrise.", reviewsScore: "4,9 pe Google", reviewsCount: "67 de recenzii", showOtherReviews: "Arată alte recenzii", googleReview: "Recenzie publicată pe Google", ratingLabel: "5 din 5 stele", openReview: "Deschide recenzia", viewAllReviews: "Vezi toate recenziile pe Google Maps",
     galleryAlts: ["Latte art pregătit la Harbor Cafe", "Cafea măcinată manual", "Vitrina Harbor Cafe cu băuturi și gustări", "Cafea rece cu portocală", "Selecție de cafea de specialitate", "Decorul cu influențe nautice Harbor Cafe", "Cold brew turnat peste gheață", "Produse proaspete în vitrina Harbor Cafe", "Cafea preparată prin metoda V60", "Espressorul Harbor Cafe", "Barista tasând cafeaua", "Cafea rece fotografiată de sus", "Socată și croissante pe tejghea", "Selecție de cafea MABÓ și croissante", "Cafea măcinată pentru espresso", "Barista distribuind cafeaua în portafiltru", "Espresso proaspăt extras", "Espresso servit cu apă", "Espresso și croissante pe tejghea"],
     visitKicker: "Găsește-ne", visitTitle: "Ne vedem la Harbor.", addressLabel: "Adresă", address: "Bulevardul Alexandru Ioan Cuza 13, 011051 București",
     hoursLabel: "Program", mapTitle: "Harbor Cafe pe Google Maps", directions: "Deschide în Google Maps", copyAddress: "Copiază adresa", addressCopied: "Adresă copiată", addressCopyFailed: "Selectează adresa", instagram: "Urmărește-ne pe Instagram",
@@ -66,7 +66,7 @@ const copy = {
     galleryNote: "A glimpse into Harbor Cafe — warm light, carefully made coffee, and something good on the side.",
     viewPhoto: "Open photo", lightboxLabel: "Harbor Cafe gallery", closeGallery: "Close gallery", previousPhoto: "Previous photo", nextPhoto: "Next photo", photoOf: "of",
     reviewsKicker: "Google reviews", reviewsTitle: <>Words from<br />our guests.</>,
-    reviewsIntro: "Public reviews, preserved exactly as they were written.", googleReview: "Review published on Google", ratingLabel: "5 out of 5 stars", openReview: "Open review", viewAllReviews: "View all reviews on Google Maps",
+    reviewsIntro: "Public reviews, preserved exactly as they were written.", reviewsScore: "4.9 on Google", reviewsCount: "67 reviews", showOtherReviews: "Show other reviews", googleReview: "Review published on Google", ratingLabel: "5 out of 5 stars", openReview: "Open review", viewAllReviews: "View all reviews on Google Maps",
     galleryAlts: ["Latte art being made at Harbor Cafe", "Coffee being ground by hand", "The Harbor Cafe counter with drinks and snacks", "Iced coffee with orange", "A selection of specialty coffee", "Harbor Cafe's nautical interior", "Cold brew poured over ice", "Fresh products at the Harbor Cafe counter", "Coffee brewed with the V60 method", "The Harbor Cafe espresso machine", "A barista tamping coffee", "Iced coffee photographed from above", "Elderflower soda and croissants on the counter", "A MABÓ coffee selection with croissants", "Coffee being ground for espresso", "A barista distributing coffee in a portafilter", "Freshly extracted espresso", "Espresso served with water", "Espresso and croissants on the counter"],
     visitKicker: "Find us", visitTitle: "Meet you at Harbor.", addressLabel: "Address", address: "13 Alexandru Ioan Cuza Boulevard, 011051 Bucharest",
     hoursLabel: "Opening hours", mapTitle: "Harbor Cafe on Google Maps", directions: "Open in Google Maps", copyAddress: "Copy address", addressCopied: "Address copied", addressCopyFailed: "Select the address", instagram: "Follow us on Instagram",
@@ -168,9 +168,28 @@ const galleryImageData = [
 const galleryImages = galleryImageData.map(({ name, width, height }) => ({
   src: assetUrl(`gallery/${name}.jpg`),
   srcSet: `${assetUrl(`gallery/${name}-480.jpg`)} 480w, ${assetUrl(`gallery/${name}-900.jpg`)} 900w, ${assetUrl(`gallery/${name}.jpg`)} ${width}w`,
+  webpSrcSet: `${assetUrl(`gallery/${name}-480.webp`)} 480w, ${assetUrl(`gallery/${name}-900.webp`)} 900w, ${assetUrl(`gallery/${name}.webp`)} ${width}w`,
+  avifSrcSet: `${assetUrl(`gallery/${name}-480.avif`)} 480w, ${assetUrl(`gallery/${name}-900.avif`)} 900w, ${assetUrl(`gallery/${name}.avif`)} ${width}w`,
   width,
   height,
 }));
+
+type GalleryPictureProps = {
+  image: (typeof galleryImages)[number];
+  alt: string;
+  sizes: string;
+  loading?: "eager" | "lazy";
+};
+
+function GalleryPicture({ image, alt, sizes, loading = "lazy" }: GalleryPictureProps) {
+  return (
+    <picture>
+      <source type="image/avif" srcSet={image.avifSrcSet} sizes={sizes} />
+      <source type="image/webp" srcSet={image.webpSrcSet} sizes={sizes} />
+      <img src={image.src} srcSet={image.srcSet} sizes={sizes} width={image.width} height={image.height} alt={alt} loading={loading} decoding="async" />
+    </picture>
+  );
+}
 
 const instagramUrl = "https://www.instagram.com/harborcafe.bucuresti/";
 const physicalAddress = "Bulevardul Alexandru Ioan Cuza 13, 011051 București";
@@ -192,8 +211,9 @@ const googleReviews = [
 type GoogleReview = (typeof googleReviews)[number];
 let clientReviewSelection: ReadonlyArray<GoogleReview> | null = null;
 
-function pickRandomReviews() {
-  const shuffled = [...googleReviews];
+function pickRandomReviews(excludedAuthors = new Set<string>()) {
+  const availableReviews = googleReviews.filter((review) => !excludedAuthors.has(review.author));
+  const shuffled = [...(availableReviews.length >= 3 ? availableReviews : googleReviews)];
   for (let index = shuffled.length - 1; index > 0; index -= 1) {
     const randomIndex = Math.floor(Math.random() * (index + 1));
     [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
@@ -208,7 +228,17 @@ function getClientReviews() {
 
 const serverReviewSelection = googleReviews.slice(0, 3);
 const getServerReviews = () => serverReviewSelection;
-const subscribeToReviewSelection = () => () => undefined;
+const reviewSelectionListeners = new Set<() => void>();
+const subscribeToReviewSelection = (listener: () => void) => {
+  reviewSelectionListeners.add(listener);
+  return () => reviewSelectionListeners.delete(listener);
+};
+
+function showOtherReviewSelection() {
+  const currentAuthors = new Set((clientReviewSelection ?? serverReviewSelection).map((review) => review.author));
+  clientReviewSelection = pickRandomReviews(currentAuthors);
+  reviewSelectionListeners.forEach((listener) => listener());
+}
 
 type OpeningStatus = { isOpen: boolean; nextTime?: string; phase?: "before" | "during" };
 
@@ -442,7 +472,7 @@ export default function Home() {
         <section className="story-section" id="story">
           <div className="section-kicker"><span>02</span>{t.storyKicker}</div>
           <div className="story-grid">
-            <div className="story-heading"><h2>{t.storyTitle}</h2><div className="story-image-wrap"><img src={galleryImages[0].src} srcSet={galleryImages[0].srcSet} sizes="(max-width: 760px) 91vw, 40vw" width={galleryImages[0].width} height={galleryImages[0].height} alt={t.galleryAlts[0]} loading="lazy" /><span className="image-label">Harbor mood / 01</span></div></div>
+            <div className="story-heading"><h2>{t.storyTitle}</h2><div className="story-image-wrap"><GalleryPicture image={galleryImages[0]} sizes="(max-width: 760px) 91vw, 40vw" alt={t.galleryAlts[0]} /><span className="image-label">Harbor mood / 01</span></div></div>
             <div className="story-copy"><p className="lead">{t.storyBody1}</p><p>{t.storyBody2}</p>
               <div className="story-details">
                 {storyDetails.map((detail, index) => {
@@ -497,7 +527,13 @@ export default function Home() {
           <div className="section-kicker light"><span>04</span>{t.reviewsKicker}</div>
           <div className="reviews-heading">
             <h2 id="reviews-title">{t.reviewsTitle}</h2>
-            <div><p>{t.reviewsIntro}</p><a href={mapsUrl} target="_blank" rel="noreferrer">{t.viewAllReviews} <span aria-hidden="true">↗</span></a></div>
+            <div>
+              <a className="reviews-score" href={mapsUrl} target="_blank" rel="noreferrer" aria-label={`${t.reviewsScore}, ${t.reviewsCount}`}>
+                <strong>{t.reviewsScore}</strong><span aria-hidden="true">★★★★★</span><small>{t.reviewsCount}</small>
+              </a>
+              <p>{t.reviewsIntro}</p>
+              <a className="reviews-google-link" href={mapsUrl} target="_blank" rel="noreferrer">{t.viewAllReviews} <span aria-hidden="true">↗</span></a>
+            </div>
           </div>
           <div className="reviews-grid">
             {visibleReviews.map((review, index) => <article className="review-card" key={review.author}>
@@ -506,6 +542,7 @@ export default function Home() {
               <cite><span><strong>{review.author}</strong><small>{t.googleReview}</small></span><a href={review.sourceUrl} target="_blank" rel="noreferrer" aria-label={`${t.openReview}: ${review.author}`}>{t.openReview} <span aria-hidden="true">↗</span></a></cite>
             </article>)}
           </div>
+          <div className="reviews-footer"><button type="button" onClick={showOtherReviewSelection}>{t.showOtherReviews} <span aria-hidden="true">↻</span></button></div>
         </section>
 
         <section className="visit-section" id="visit">
@@ -522,7 +559,7 @@ export default function Home() {
         <section className="gallery-section" id="gallery">
           <div className="section-kicker"><span>06</span>{t.galleryKicker}</div>
           <div className="gallery-heading"><h2>{t.galleryTitle}</h2><p>{t.galleryNote}</p></div>
-          <div className="gallery-grid">{galleryImages.map((image, index) => <figure key={image.src} className={`gallery-item gallery-item-${index + 1}`}><button type="button" className="gallery-image-button" aria-label={`${t.viewPhoto}: ${t.galleryAlts[index]}`} aria-haspopup="dialog" onClick={() => setLightboxIndex(index)}><img src={image.src} srcSet={image.srcSet} sizes="(max-width: 760px) 91vw, 55vw" width={image.width} height={image.height} alt={t.galleryAlts[index]} loading="lazy" /></button><figcaption><span>{String(index + 1).padStart(2, "0")}</span> Harbor Cafe</figcaption></figure>)}</div>
+          <div className="gallery-grid">{galleryImages.map((image, index) => <figure key={image.src} className={`gallery-item gallery-item-${index + 1}`}><button type="button" className="gallery-image-button" aria-label={`${t.viewPhoto}: ${t.galleryAlts[index]}`} aria-haspopup="dialog" onClick={() => setLightboxIndex(index)}><GalleryPicture image={image} sizes="(max-width: 760px) 91vw, 55vw" alt={t.galleryAlts[index]} /></button><figcaption><span>{String(index + 1).padStart(2, "0")}</span> Harbor Cafe</figcaption></figure>)}</div>
         </section>
       </main>
 
@@ -550,7 +587,7 @@ export default function Home() {
           if (Math.abs(distance) < 45) return;
           if (distance > 0) showNextPhoto(); else showPreviousPhoto();
         }} onPointerCancel={() => { swipeStartX.current = null; }}>
-          <img src={galleryImages[lightboxIndex].src} srcSet={galleryImages[lightboxIndex].srcSet} sizes="100vw" width={galleryImages[lightboxIndex].width} height={galleryImages[lightboxIndex].height} alt={t.galleryAlts[lightboxIndex]} />
+          <GalleryPicture image={galleryImages[lightboxIndex]} sizes="100vw" alt={t.galleryAlts[lightboxIndex]} loading="eager" />
           <figcaption><span>{String(lightboxIndex + 1).padStart(2, "0")} {t.photoOf} {galleryImages.length}</span><span>{t.galleryAlts[lightboxIndex]}</span></figcaption>
         </figure>
         <button type="button" className="lightbox-nav lightbox-next" aria-label={t.nextPhoto} onClick={showNextPhoto}>→</button>

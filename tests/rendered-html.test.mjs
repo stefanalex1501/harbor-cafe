@@ -58,6 +58,11 @@ test("server-renders the Harbor Cafe homepage and visit details", async () => {
   assert.match(html, /Deschide recenzia/);
   assert.match(html, /Recenzie publicată pe Google/);
   assert.match(html, /Vezi toate recenziile pe Google Maps/);
+  assert.match(html, /4,9 pe Google/);
+  assert.match(html, /67 de recenzii/);
+  assert.match(html, /Arată alte recenzii/);
+  assert.match(html, /type="image\/avif"/);
+  assert.match(html, /type="image\/webp"/);
   assert.match(html, /href="#reviews"/);
   assert.ok(html.indexOf('id="menu"') < html.indexOf('id="reviews"'));
   assert.ok(html.indexOf('id="reviews"') < html.indexOf('id="visit"'));
@@ -66,8 +71,9 @@ test("server-renders the Harbor Cafe homepage and visit details", async () => {
 });
 
 test("keeps the project detached from Sites hosting", async () => {
-  const [page, viteConfig, index] = await Promise.all([
+  const [page, styles, viteConfig, index] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../vite.config.ts", import.meta.url), "utf8"),
     readFile(new URL("../index.html", import.meta.url), "utf8"),
   ]);
@@ -77,7 +83,11 @@ test("keeps the project detached from Sites hosting", async () => {
   assert.match(index, /viewport-fit=cover/);
   assert.match(index, /name="theme-color" content="#051d2d"/);
   assert.match(index, /rel="manifest" href="\.\/manifest\.webmanifest"/);
-  assert.match(index, /rel="icon" type="image\/png" sizes="192x192" href="\.\/icon-192\.png"/);
+  assert.match(index, /rel="icon" type="image\/png" sizes="192x192" href="\.\/harbor-cafe-round-192\.png"/);
+  assert.match(index, /rel="apple-touch-icon" sizes="180x180" href="\.\/harbor-cafe-round-180\.png"/);
+  assert.match(index, /rel="canonical" href="https:\/\/stefanalex1501\.github\.io\/harbor-cafe\/"/);
+  assert.match(index, /"@type": "CafeOrCoffeeShop"/);
+  assert.match(index, /"acceptsReservations": false/);
   assert.match(page, /navigator\.serviceWorker\.register\(assetUrl\("sw\.js"\)\)/);
   assert.match(page, /maps\.app\.goo\.gl\/T3QEAoutTwmY8DQp6/);
   assert.match(page, /maps\.app\.goo\.gl\/QAcQhoQasSwsH5qH6/);
@@ -85,10 +95,17 @@ test("keeps the project detached from Sites hosting", async () => {
   assert.match(page, /google\.com\/maps\/place\/Harbor\+Cafe/);
   assert.match(page, /scrollToSection/);
   assert.match(page, /window\.scrollTo/);
+  assert.match(page, /showOtherReviewSelection/);
+  assert.match(styles, /\.menu-tabs \{ position: sticky; top: 0;/);
   assert.doesNotMatch(viteConfig, /sites-vite-plugin|hosting\.json|sites\(\)/);
   await Promise.all([
     access(new URL("../public/manifest.webmanifest", import.meta.url)),
     access(new URL("../public/sw.js", import.meta.url)),
+    access(new URL("../public/harbor-cafe-round-192.png", import.meta.url)),
+    access(new URL("../public/harbor-cafe-round-512.png", import.meta.url)),
+    access(new URL("../public/harbor-cafe-round-180.png", import.meta.url)),
+    access(new URL("../public/gallery/latte-art-pour-480.avif", import.meta.url)),
+    access(new URL("../public/gallery/latte-art-pour-480.webp", import.meta.url)),
     access(new URL("../public/icon-192.png", import.meta.url)),
     access(new URL("../public/icon-512.png", import.meta.url)),
     access(new URL("../public/apple-touch-icon.png", import.meta.url)),

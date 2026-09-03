@@ -1,10 +1,12 @@
-const CACHE_NAME = "harbor-cafe-v1";
+const CACHE_NAME = "harbor-cafe-v2";
 const ROOT_URL = new URL("./", self.location.href).href;
 const OFFLINE_ASSETS = [
   ROOT_URL,
   new URL("harbor-cafe-logo.png", ROOT_URL).href,
   new URL("manifest.webmanifest", ROOT_URL).href,
-  new URL("icon-192.png", ROOT_URL).href,
+  new URL("harbor-cafe-round-192.png", ROOT_URL).href,
+  new URL("harbor-cafe-round-512.png", ROOT_URL).href,
+  new URL("harbor-cafe-round-180.png", ROOT_URL).href,
 ];
 
 self.addEventListener("install", (event) => {
