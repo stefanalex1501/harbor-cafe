@@ -97,6 +97,7 @@ test("keeps the project detached from Sites hosting", async () => {
   assert.match(page, /window\.scrollTo/);
   assert.match(page, /showOtherReviewSelection/);
   assert.match(styles, /\.menu-tabs \{ position: sticky; top: 0;/);
+  assert.match(styles, /\.story-image-wrap picture \{ height: 100%; \}/);
   assert.doesNotMatch(viteConfig, /sites-vite-plugin|hosting\.json|sites\(\)/);
   await Promise.all([
     access(new URL("../public/manifest.webmanifest", import.meta.url)),
