@@ -25,8 +25,9 @@ const copy = {
     menuIntro: "Cafea de specialitate, băuturi reci, ciabatta și deserturi — toate într-un singur loc.",
     foodInfo: "Informații alimentare", showFoodInfo: "Vezi informațiile alimentare", hideFoodInfo: "Ascunde informațiile alimentare",
     foodInfoIntro: "Marcajele sunt orientative și se bazează pe rețetele obișnuite. Ingredientele și riscul de contaminare încrucișată pot varia; dacă ai alergii sau intoleranțe, confirmă întotdeauna cu barista înainte de comandă.",
-    plantInfo: "Alternativele vegetale sunt disponibile în funcție de stoc.",
-    foodTags: { milk: "Lapte", gluten: "Gluten", eggs: "Ouă", nuts: "Fructe cu coajă", alcoholFree: "Fără alcool", plantOption: "Opțiune vegetală" },
+    plantInfo: "Laptele vegetal este disponibil în funcție de stoc și se adaugă la prețul afișat.",
+    plantSurcharge: "+5 RON",
+    foodTags: { milk: "Lapte", gluten: "Gluten", eggs: "Ouă", nuts: "Fructe cu coajă", alcoholFree: "Fără alcool", plantOption: "Lapte vegetal" },
     itemFoodInfo: "Informații orientative despre ingrediente",
     categories: { coffee: "Cafea caldă", notCoffee: "Rece & bar", brunch: "Ciabatta", sweet: "Deserturi" },
     galleryKicker: "Galerie", galleryTitle: <>Texturi, lumină<br />și cafea bună.</>,
@@ -58,8 +59,9 @@ const copy = {
     menuIntro: "Specialty coffee, cold drinks, ciabatta, and sweets — all in one place.",
     foodInfo: "Food information", showFoodInfo: "View food information", hideFoodInfo: "Hide food information",
     foodInfoIntro: "Markers are a guide based on the usual recipes. Ingredients and cross-contamination risks may vary; if you have allergies or intolerances, always confirm with the barista before ordering.",
-    plantInfo: "Plant-based alternatives are available depending on stock.",
-    foodTags: { milk: "Milk", gluten: "Gluten", eggs: "Eggs", nuts: "Tree nuts", alcoholFree: "Alcohol-free", plantOption: "Plant option" },
+    plantInfo: "Plant milk is available depending on stock and is added to the displayed price.",
+    plantSurcharge: "+5 RON",
+    foodTags: { milk: "Milk", gluten: "Gluten", eggs: "Eggs", nuts: "Tree nuts", alcoholFree: "Alcohol-free", plantOption: "Plant milk" },
     itemFoodInfo: "Indicative ingredient information",
     categories: { coffee: "Hot coffee", notCoffee: "Cold & bar", brunch: "Ciabatta", sweet: "Sweets" },
     galleryKicker: "Gallery", galleryTitle: <>Texture, light<br />and good coffee.</>,
@@ -562,7 +564,7 @@ export default function Home() {
             <div className="food-information-panel" id="food-information-panel" hidden={!foodInfoOpen}>
               <p>{t.foodInfoIntro}</p>
               <p>{t.plantInfo}</p>
-              <ul aria-label={t.foodInfo}>{(Object.keys(t.foodTags) as FoodTag[]).map((tag) => <li key={tag}>{t.foodTags[tag]}</li>)}</ul>
+              <ul aria-label={t.foodInfo}>{(Object.keys(t.foodTags) as FoodTag[]).map((tag) => <li className={tag === "plantOption" ? "surcharge-tag" : undefined} key={tag}><span>{t.foodTags[tag]}</span>{tag === "plantOption" && <strong>{t.plantSurcharge}</strong>}</li>)}</ul>
             </div>
           </div>
           <div className="menu-tabs" role="tablist" aria-label={t.menuKicker}>
@@ -571,7 +573,7 @@ export default function Home() {
           <div className="menu-list" id="menu-panel" key={category} role="tabpanel" aria-labelledby={`menu-tab-${category}`} tabIndex={0}>
             {menuItems[category].map((item, index) => {
               const foodTags = getFoodTags(category, item.ro);
-              return <article className="menu-item" key={item.ro}><span className="item-number">{String(index + 1).padStart(2, "0")}</span><div><h3>{item[language]}</h3><p>{language === "ro" ? item.noteRo : item.noteEn}</p>{foodTags.length > 0 && <ul className="item-tags" aria-label={t.itemFoodInfo}>{foodTags.map((tag) => <li key={tag}>{t.foodTags[tag]}</li>)}</ul>}</div><span className="item-price">{`${item.price.replace(/ lei$/, "")} RON`}</span></article>;
+              return <article className="menu-item" key={item.ro}><span className="item-number">{String(index + 1).padStart(2, "0")}</span><div><h3>{item[language]}</h3><p>{language === "ro" ? item.noteRo : item.noteEn}</p>{foodTags.length > 0 && <ul className="item-tags" aria-label={t.itemFoodInfo}>{foodTags.map((tag) => <li className={tag === "plantOption" ? "surcharge-tag" : undefined} key={tag}><span>{t.foodTags[tag]}</span>{tag === "plantOption" && <strong>{t.plantSurcharge}</strong>}</li>)}</ul>}</div><span className="item-price">{`${item.price.replace(/ lei$/, "")} RON`}</span></article>;
             })}
           </div>
         </section>
@@ -640,7 +642,9 @@ export default function Home() {
           if (Math.abs(distance) < 45) return;
           if (distance > 0) showNextPhoto(); else showPreviousPhoto();
         }} onPointerCancel={() => { swipeStartX.current = null; }}>
-          <GalleryPicture image={galleryImages[lightboxIndex]} sizes="100vw" alt={t.galleryAlts[lightboxIndex]} loading="eager" />
+          <div className="lightbox-media">
+            <GalleryPicture image={galleryImages[lightboxIndex]} sizes="100vw" alt={t.galleryAlts[lightboxIndex]} loading="eager" />
+          </div>
           <figcaption><span>{String(lightboxIndex + 1).padStart(2, "0")} {t.photoOf} {galleryImages.length}</span><span>{t.galleryAlts[lightboxIndex]}</span></figcaption>
         </figure>
         <button type="button" className="lightbox-nav lightbox-next" aria-label={t.nextPhoto} onClick={showNextPhoto}>→</button>

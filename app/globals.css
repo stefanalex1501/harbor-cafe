@@ -150,6 +150,9 @@ h1 { margin: 0; max-width: 750px; font-size: clamp(4.2rem, 7.7vw, 8rem); letter-
 .food-information-panel ul { margin: 1.05rem 0 0; display: flex; flex-wrap: wrap; gap: .45rem; }
 .food-information-panel li, .item-tags li { border: 1px solid rgba(243,237,225,.22); border-radius: 999px; color: rgba(243,237,225,.76); text-transform: uppercase; letter-spacing: .08em; font-size: .57rem; line-height: 1; }
 .food-information-panel li { padding: .48rem .7rem; }
+.food-information-panel .surcharge-tag, .item-tags .surcharge-tag { display: inline-flex; align-items: center; gap: .45rem; border-color: rgba(224,179,154,.55); background: rgba(224,179,154,.07); color: var(--cream); }
+.food-information-panel .surcharge-tag { padding: .24rem .28rem .24rem .7rem; }
+.surcharge-tag strong { padding: .3rem .48rem; border-radius: 999px; background: #e0b39a; color: var(--ink); font-size: .62rem; letter-spacing: .06em; white-space: nowrap; }
 .menu-tabs { display: flex; gap: 0; margin-top: clamp(1.75rem, 3vw, 3rem); border-bottom: 1px solid rgba(243,237,225,.16); overflow-x: auto; scrollbar-width: none; }
 .menu-tabs::-webkit-scrollbar { display: none; }
 .menu-tabs button { flex: 1; min-width: 155px; padding: 1.25rem 1.35rem; border: 0; border-top: 1px solid rgba(243,237,225,.16); border-left: 1px solid rgba(243,237,225,.16); background: transparent; color: rgba(243,237,225,.66); cursor: pointer; text-transform: uppercase; letter-spacing: .11em; font-size: .72rem; font-weight: 650; transition: background .2s ease, color .2s ease; }
@@ -163,6 +166,7 @@ h1 { margin: 0; max-width: 750px; font-size: clamp(4.2rem, 7.7vw, 8rem); letter-
 .menu-item p { margin: 0; color: rgba(243,237,225,.68); font-size: .9rem; line-height: 1.5; }
 .item-tags { margin: .7rem 0 0; display: flex; flex-wrap: wrap; gap: .35rem; }
 .item-tags li { padding: .38rem .55rem; color: rgba(243,237,225,.62); font-size: .52rem; }
+.item-tags .surcharge-tag { padding: .2rem .22rem .2rem .55rem; }
 .item-price { color: #e0b39a; font-family: Georgia, "Times New Roman", serif; font-size: 1.12rem; font-weight: 600; letter-spacing: .01em; white-space: nowrap; }
 
 .gallery-section { background: #f8f2e7; }
@@ -273,8 +277,9 @@ footer > p a { color: rgba(243,237,225,.72); }
 
 .lightbox { position: fixed; inset: 0; z-index: 100; width: 100vw; height: 100dvh; overflow: hidden; display: grid; grid-template-columns: 72px minmax(0, 1fr) 72px; grid-template-rows: minmax(0, 1fr); align-items: stretch; padding: 4.5rem 2.5vw 2rem; background: rgba(3, 14, 22, .96); color: var(--cream); }
 .lightbox-content { width: 100%; height: 100%; min-width: 0; min-height: 0; margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 1rem; justify-items: center; touch-action: pan-y; }
-.lightbox-content picture { width: 100%; height: 100%; min-width: 0; min-height: 0; display: grid; place-items: center; }
-.lightbox-content img { width: auto; height: auto; max-width: 100%; max-height: 100%; min-width: 0; min-height: 0; place-self: center; object-fit: contain; }
+.lightbox-media { position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; overflow: hidden; }
+.lightbox-media picture { position: absolute; inset: 0; display: block; }
+.lightbox-media img { width: 100%; height: 100%; object-fit: contain; object-position: center; }
 .lightbox-content figcaption { width: 100%; display: flex; justify-content: space-between; gap: 1.5rem; color: rgba(243,237,225,.68); font-size: .68rem; line-height: 1.45; letter-spacing: .1em; text-transform: uppercase; }
 .lightbox-content figcaption span:last-child { text-align: right; }
 .lightbox-close, .lightbox-nav { border: 1px solid rgba(243,237,225,.32); background: rgba(5,29,45,.55); color: var(--cream); cursor: pointer; transition: background .2s ease, color .2s ease, border-color .2s ease; }
@@ -332,9 +337,10 @@ footer > p a { color: rgba(243,237,225,.72); }
   .site-header.is-open .menu-toggle span:last-child { top: 20px; transform: rotate(-45deg); }
   .hero { height: auto; min-height: 100svh; grid-template-columns: 1fr; padding-top: calc(120px + env(safe-area-inset-top)); padding-bottom: 90px; }
   .hero-copy { align-self: end; }
-  h1 { font-size: clamp(3.7rem, 17vw, 6.6rem); }
+  h1 { font-size: clamp(3.7rem, 17vw, 6.6rem); line-height: .94; letter-spacing: -.045em; }
   .intro { margin-top: 1.8rem; }
   .hero-mark { width: min(78vw, 390px); margin: 3.2rem auto 2rem; }
+  .orbit-copy { display: none; }
   .hero-note { display: none; }
   .scroll-cue { bottom: 24px; }
   .manifesto { align-items: flex-start; flex-direction: column; }
