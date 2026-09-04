@@ -91,7 +91,7 @@ const menuItems = {
     { ro: "Latte", en: "Latte", noteRo: "300 ml", noteEn: "300 ml", price: "21 lei" },
     { ro: "V60 / Rarity", en: "V60 / Rarity", noteRo: "250 ml", noteEn: "250 ml", price: "23 / 33 lei" },
     { ro: "Ciocolată caldă", en: "Hot Chocolate", noteRo: "220 ml", noteEn: "220 ml", price: "19 lei" },
-    { ro: "Matcha Latte", en: "Matcha Latte", noteRo: "220 ml", noteEn: "220 ml", price: "23 lei" },
+    { ro: "Matcha Latte", en: "Matcha Latte", noteRo: "220 ml · lapte vegetal inclus", noteEn: "220 ml · plant milk included", price: "23 lei" },
     { ro: "Babyccino", en: "Babyccino", noteRo: "220 ml", noteEn: "220 ml", price: "15 lei" },
     { ro: "Ceai", en: "Tea", noteRo: "250 ml", noteEn: "250 ml", price: "17 lei" },
   ],
@@ -131,7 +131,7 @@ const menuItems = {
 } as const;
 
 const milkDrinks = new Set([
-  "Cortado", "Cappuccino", "Flat White", "Latte", "Ciocolată caldă", "Matcha Latte", "Babyccino",
+  "Cortado", "Cappuccino", "Flat White", "Latte", "Ciocolată caldă", "Babyccino",
   "Cold Brew Latte", "Iced Latte", "Iced Strawberry Matcha",
 ]);
 
@@ -392,6 +392,14 @@ export default function Home() {
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
+    if (import.meta.env.DEV) {
+      navigator.serviceWorker.getRegistrations()
+        .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+        .then(() => window.caches?.keys())
+        .then((cacheNames) => cacheNames && Promise.all(cacheNames.filter((name) => name.startsWith("harbor-cafe-")).map((name) => window.caches.delete(name))))
+        .catch(() => undefined);
+      return;
+    }
     const registerServiceWorker = () => {
       navigator.serviceWorker.register(assetUrl("sw.js")).catch(() => undefined);
     };

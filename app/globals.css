@@ -357,7 +357,9 @@ footer > p a { color: rgba(243,237,225,.72); }
   .food-information-trigger { min-height: 60px; }
   .food-information-panel { padding-bottom: 1.15rem; }
   .food-information-panel p { font-size: .76rem; }
-  .menu-tabs { position: sticky; top: 0; z-index: 12; margin-right: -4.5vw; margin-left: -4.5vw; padding-left: 4.5vw; background: rgba(5,29,45,.96); box-shadow: 0 12px 28px rgba(3,14,22,.18); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); -webkit-overflow-scrolling: touch; }
+  .menu-tabs { position: sticky; top: 0; z-index: 12; margin-right: -4.5vw; margin-left: -4.5vw; padding: .65rem 4.5vw; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; overflow: visible; background: rgba(5,29,45,.96); box-shadow: 0 12px 28px rgba(3,14,22,.18); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .menu-tabs button, .menu-tabs button:last-child { min-width: 0; min-height: 48px; padding: .72rem .55rem; border: 1px solid rgba(243,237,225,.2); border-radius: 999px; background: rgba(243,237,225,.035); font-size: .65rem; letter-spacing: .09em; }
+  .menu-tabs button[aria-selected="true"] { border-color: var(--cream); background: var(--cream); color: var(--ink); box-shadow: 0 8px 22px rgba(3,14,22,.24); }
   .menu-item { grid-template-columns: 36px 1fr; padding: 1.1rem 0; }
   .item-price { grid-column: 2; margin-top: 0; font-size: 1.05rem; }
   .gallery-heading p { justify-self: start; text-align: left; }
