@@ -193,9 +193,46 @@ function GalleryPicture({ image, alt, sizes, loading = "lazy" }: GalleryPictureP
 
 const instagramUrl = "https://www.instagram.com/harborcafe.bucuresti/";
 const physicalAddress = "Bulevardul Alexandru Ioan Cuza 13, 011051 București";
+const languageStorageKey = "harbor-cafe-language";
 const mapsUrl = "https://www.google.com/maps/place/Harbor+Cafe/@44.4489541,26.0806877,19z/data=!4m16!1m9!3m8!1s0x40b201004f4513f3:0xc119237662a4b949!2sHarbor+Cafe!8m2!3d44.4489541!4d26.0813495!9m1!1b1!16s%2Fg%2F11x90nxt_4!3m5!1s0x40b201004f4513f3:0xc119237662a4b949!8m2!3d44.4489541!4d26.0813495!16s%2Fg%2F11x90nxt_4?entry=ttu";
 const mapsEmbedUrl = "https://www.google.com/maps?q=Harbor%20Cafe%2C%20Bulevardul%20Alexandru%20Ioan%20Cuza%2013%2C%20Bucuresti&output=embed";
 const sectionIds: SectionId[] = ["top", "story", "menu", "reviews", "visit", "gallery"];
+
+let clientLanguage: Language | null = null;
+const languageListeners = new Set<() => void>();
+const getServerLanguage = (): Language => "ro";
+const getClientLanguage = (): Language => {
+  if (clientLanguage !== null) return clientLanguage;
+  try {
+    const savedLanguage = window.localStorage.getItem(languageStorageKey);
+    clientLanguage = savedLanguage === "en" ? "en" : "ro";
+  } catch {
+    clientLanguage = "ro";
+  }
+  return clientLanguage;
+};
+const subscribeToLanguage = (listener: () => void) => {
+  languageListeners.add(listener);
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key !== languageStorageKey) return;
+    clientLanguage = event.newValue === "en" ? "en" : "ro";
+    languageListeners.forEach((languageListener) => languageListener());
+  };
+  window.addEventListener("storage", handleStorage);
+  return () => {
+    languageListeners.delete(listener);
+    window.removeEventListener("storage", handleStorage);
+  };
+};
+const saveLanguage = (language: Language) => {
+  clientLanguage = language;
+  try {
+    window.localStorage.setItem(languageStorageKey, language);
+  } catch {
+    // The language still changes for this visit if browser storage is unavailable.
+  }
+  languageListeners.forEach((listener) => listener());
+};
 
 const googleReviews = [
   { author: "Miriam 18", quote: "O cafenea super cozy, perfectă pentru relaxare sau stat la povești. Cafeaua e foarte bună, iar personalul e prietenos și atent.", sourceUrl: "https://maps.app.goo.gl/T3QEAoutTwmY8DQp6" },
@@ -276,7 +313,7 @@ function getOpeningStatus(): OpeningStatus {
 }
 
 export default function Home() {
-  const [language, setLanguage] = useState<Language>("ro");
+  const language = useSyncExternalStore(subscribeToLanguage, getClientLanguage, getServerLanguage);
   const [category, setCategory] = useState<MenuCategory>("coffee");
   const [menuOpen, setMenuOpen] = useState(false);
   const [expandedDetail, setExpandedDetail] = useState<number | null>(null);
@@ -300,7 +337,7 @@ export default function Home() {
   ];
   const navItems = [["story", t.story], ["menu", t.menu], ["reviews", t.reviews], ["visit", t.visit], ["gallery", t.gallery]] as const;
   const sideNavItems: ReadonlyArray<readonly [SectionId, string]> = [["top", t.home], ...navItems];
-  const changeLanguage = () => setLanguage((current) => (current === "ro" ? "en" : "ro"));
+  const changeLanguage = () => saveLanguage(language === "ro" ? "en" : "ro");
   const scrollToSection = (event: ReactMouseEvent<HTMLAnchorElement>, id: SectionId) => {
     event.preventDefault();
     const section = document.getElementById(id);
