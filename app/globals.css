@@ -170,6 +170,11 @@ h1 { margin: 0; max-width: 750px; font-size: clamp(4.2rem, 7.7vw, 8rem); letter-
 .item-price { color: #e0b39a; font-family: Georgia, "Times New Roman", serif; font-size: 1.12rem; font-weight: 600; letter-spacing: .01em; white-space: nowrap; }
 
 .gallery-section { background: #f8f2e7; }
+.gallery-footer { margin-top: clamp(2rem, 5vw, 4rem); padding-top: 1.5rem; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+.gallery-footer p { margin: 0; color: rgba(5,29,45,.7); font-size: .875rem; }
+.gallery-footer button { min-height: 52px; padding: .85rem 1.35rem; display: inline-flex; justify-content: space-between; align-items: center; gap: 1.5rem; border: 1px solid var(--ink); border-radius: 999px; background: var(--ink); color: var(--cream); font-size: .875rem; font-weight: 600; cursor: pointer; transition: background .2s ease; }
+.gallery-footer button:hover { background: var(--ink-soft); }
+.gallery-footer button > span { color: #e0b39a; font-size: 1.25rem; }
 .gallery-heading { display: grid; grid-template-columns: 1.2fr .8fr; align-items: end; gap: 3rem; }
 .gallery-heading h2 { margin-bottom: 0; }
 .gallery-heading p { justify-self: end; max-width: 310px; margin: 0 0 .5rem; color: rgba(5,29,45,.6); font-size: .78rem; line-height: 1.7; text-align: right; }
@@ -213,6 +218,8 @@ h1 { margin: 0; max-width: 750px; font-size: clamp(4.2rem, 7.7vw, 8rem); letter-
 .reviews-heading h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(3.2rem, 6.5vw, 7rem); font-weight: 400; line-height: .91; letter-spacing: -.052em; }
 .reviews-heading > div { max-width: 440px; padding-bottom: .45rem; }
 .reviews-heading p { margin: 1.5rem 0 1.25rem; color: rgba(243,237,225,.62); font-size: .86rem; line-height: 1.75; }
+.reviews-heading .reviews-update-note { margin: .85rem 0 0; font-size: .8125rem; line-height: 1.6; color: rgba(243,237,225,.72); }
+.reviews-update-note span { display: block; }
 .reviews-score { width: fit-content; display: grid; grid-template-columns: auto auto; align-items: baseline; gap: .25rem 1rem; }
 .reviews-score strong { font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 400; letter-spacing: -.035em; }
 .reviews-score > span { color: #e0b39a; font-size: .72rem; letter-spacing: .15em; }
@@ -352,7 +359,14 @@ footer > p a { color: rgba(243,237,225,.72); }
   .story-detail-trigger { min-height: 74px; grid-template-columns: 42px 1fr auto; }
   .story-detail-trigger strong { font-size: .76rem; }
   .story-detail-content p { margin-left: 42px; margin-right: .25rem; font-size: .94rem; }
-  .menu-section { overflow: visible; }
+  .menu-section { overflow: visible; padding-top: 2.5rem; }
+  .menu-section .section-kicker { margin-bottom: 1.5rem; }
+  .menu-heading { gap: 1rem; }
+  .menu-heading h2 { font-size: clamp(2.8rem, 11vw, 4rem); line-height: 1; }
+  .menu-heading > p { margin: 0; font-size: 1rem; line-height: 1.6; }
+  .food-information { margin-top: 1.5rem; }
+  .menu-section .menu-tabs { margin-top: 1rem; }
+  .gallery-footer button { width: 100%; }
   .menu-section::before { right: 0; }
   .food-information-trigger { min-height: 60px; }
   .food-information-panel { padding-bottom: 1.15rem; }

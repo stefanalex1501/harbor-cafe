@@ -32,6 +32,8 @@ const copy = {
     categories: { coffee: "Cafea caldă", notCoffee: "Rece & bar", brunch: "Ciabatta", sweet: "Deserturi" },
     galleryKicker: "Galerie", galleryTitle: <>Texturi, lumină<br />și cafea bună.</>,
     galleryNote: "O privire în atmosfera Harbor Cafe — lumină caldă, cafea pregătită cu grijă și ceva bun alături.",
+    showAllPhotos: "Vezi toate fotografiile", photosLabel: "fotografii",
+    reviewsUpdated: "Scor și număr de recenzii introduse pe site la", reviewsSnapshotDate: "3 septembrie 2026", reviewsUpdateNote: "Actualizate manual, nu în timp real.",
     viewPhoto: "Deschide fotografia", lightboxLabel: "Galeria Harbor Cafe", closeGallery: "Închide galeria", previousPhoto: "Fotografia anterioară", nextPhoto: "Fotografia următoare", photoOf: "din",
     reviewsKicker: "Recenzii Google", reviewsTitle: <>Cuvinte lăsate<br />de oaspeții noștri.</>,
     reviewsIntro: "Recenzii publice, păstrate exact în forma în care au fost scrise.", reviewsScore: "4,9 pe Google", reviewsCount: "67 de recenzii", showOtherReviews: "Arată alte recenzii", googleReview: "Recenzie publicată pe Google", ratingLabel: "5 din 5 stele", openReview: "Deschide recenzia", viewAllReviews: "Vezi toate recenziile pe Google Maps",
@@ -66,6 +68,8 @@ const copy = {
     categories: { coffee: "Hot coffee", notCoffee: "Cold & bar", brunch: "Ciabatta", sweet: "Sweets" },
     galleryKicker: "Gallery", galleryTitle: <>Texture, light<br />and good coffee.</>,
     galleryNote: "A glimpse into Harbor Cafe — warm light, carefully made coffee, and something good on the side.",
+    showAllPhotos: "View all photos", photosLabel: "photos",
+    reviewsUpdated: "Rating and review count added to this site on", reviewsSnapshotDate: "3 September 2026", reviewsUpdateNote: "Updated manually, not in real time.",
     viewPhoto: "Open photo", lightboxLabel: "Harbor Cafe gallery", closeGallery: "Close gallery", previousPhoto: "Previous photo", nextPhoto: "Next photo", photoOf: "of",
     reviewsKicker: "Google reviews", reviewsTitle: <>Words from<br />our guests.</>,
     reviewsIntro: "Public reviews, preserved exactly as they were written.", reviewsScore: "4.9 on Google", reviewsCount: "67 reviews", showOtherReviews: "Show other reviews", googleReview: "Review published on Google", ratingLabel: "5 out of 5 stars", openReview: "Open review", viewAllReviews: "View all reviews on Google Maps",
@@ -79,6 +83,9 @@ const copy = {
 } as const;
 
 const menuCategoryKeys: MenuCategory[] = ["coffee", "notCoffee", "brunch", "sweet"];
+const galleryPreviewCount = 6;
+// Date these figures were introduced in the site, not a live Google verification.
+const reviewsSnapshotDate = "2026-09-03";
 
 const menuItems = {
   coffee: [
@@ -322,6 +329,8 @@ export default function Home() {
   const [hoveredDetail, setHoveredDetail] = useState<number | null>(null);
   const [activeSection, setActiveSection] = useState<SectionId>("top");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [galleryExpanded, setGalleryExpanded] = useState(false);
+  const firstExtraPhotoRef = useRef<HTMLButtonElement>(null);
   const [openingStatus, setOpeningStatus] = useState<OpeningStatus | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
   const [foodInfoOpen, setFoodInfoOpen] = useState(false);
@@ -330,8 +339,12 @@ export default function Home() {
   const swipeStartX = useRef<number | null>(null);
   const copyResetTimer = useRef<number | null>(null);
   const t = copy[language];
+  const visibleGalleryImages = galleryExpanded ? galleryImages : galleryImages.slice(0, galleryPreviewCount);
   const isLightboxOpen = lightboxIndex !== null;
   const activeDetail = hoveredDetail ?? expandedDetail;
+  useEffect(() => {
+    if (galleryExpanded) firstExtraPhotoRef.current?.focus({ preventScroll: true });
+  }, [galleryExpanded]);
   const storyDetails = [
     { title: t.detail1, body: t.detailBody1 },
     { title: t.detail2, body: t.detailBody2 },
@@ -594,6 +607,7 @@ export default function Home() {
               <a className="reviews-score" href={mapsUrl} target="_blank" rel="noreferrer" aria-label={`${t.reviewsScore}, ${t.reviewsCount}`}>
                 <strong>{t.reviewsScore}</strong><span aria-hidden="true">★★★★★</span><small>{t.reviewsCount}</small>
               </a>
+              <p className="reviews-update-note">{t.reviewsUpdated} <time dateTime={reviewsSnapshotDate}>{t.reviewsSnapshotDate}</time>. <span>{t.reviewsUpdateNote}</span></p>
               <p>{t.reviewsIntro}</p>
               <a className="reviews-google-link" href={mapsUrl} target="_blank" rel="noreferrer">{t.viewAllReviews} <span aria-hidden="true">↗</span></a>
             </div>
@@ -622,7 +636,11 @@ export default function Home() {
         <section className="gallery-section" id="gallery">
           <div className="section-kicker"><span>06</span>{t.galleryKicker}</div>
           <div className="gallery-heading"><h2>{t.galleryTitle}</h2><p>{t.galleryNote}</p></div>
-          <div className="gallery-grid">{galleryImages.map((image, index) => <figure key={image.src} className={`gallery-item gallery-item-${index + 1}`}><button type="button" className="gallery-image-button" aria-label={`${t.viewPhoto}: ${t.galleryAlts[index]}`} aria-haspopup="dialog" onClick={() => setLightboxIndex(index)}><GalleryPicture image={image} sizes="(max-width: 760px) 91vw, 55vw" alt={t.galleryAlts[index]} /></button><figcaption><span>{String(index + 1).padStart(2, "0")}</span> Harbor Cafe</figcaption></figure>)}</div>
+          <div className="gallery-grid" id="gallery-grid">{visibleGalleryImages.map((image, index) => <figure key={image.src} className={`gallery-item gallery-item-${index + 1}`}><button type="button" ref={index === galleryPreviewCount ? firstExtraPhotoRef : undefined} className="gallery-image-button" aria-label={`${t.viewPhoto}: ${t.galleryAlts[index]}`} aria-haspopup="dialog" onClick={() => setLightboxIndex(index)}><GalleryPicture image={image} sizes="(max-width: 760px) 91vw, 55vw" alt={t.galleryAlts[index]} /></button><figcaption><span>{String(index + 1).padStart(2, "0")}</span> Harbor Cafe</figcaption></figure>)}</div>
+          <div className="gallery-footer">
+            <p role="status">{visibleGalleryImages.length} {t.photoOf} {galleryImages.length} {t.photosLabel}</p>
+            {!galleryExpanded && <button type="button" aria-controls="gallery-grid" aria-expanded={galleryExpanded} onClick={() => setGalleryExpanded(true)}>{t.showAllPhotos}<span aria-hidden="true">＋</span></button>}
+          </div>
         </section>
       </main>
 
