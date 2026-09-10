@@ -412,6 +412,38 @@ footer > p a { color: rgba(243,237,225,.72); }
   .lightbox-next { right: 4.5vw; }
 }
 
+.menu-list { max-width: 52rem; margin-inline: auto; }
+.menu-item { padding-block: 1.1rem; }
+.food-information-panel li, .item-tags li { border-color: rgba(243,237,225,.3); color: rgba(243,237,225,.85); letter-spacing: .04em; font-size: .75rem; line-height: 1.35; }
+.surcharge-tag strong { font-size: .75rem; letter-spacing: .03em; }
+.menu-tabs button { font-size: .875rem; }
+.hours-block { scroll-margin-top: 1.5rem; }
+.opening-status, .desktop-opening-status { border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.hours-shortcut-label { text-decoration: underline; text-underline-offset: .2em; }
+.opening-status:hover .hours-shortcut-label, .desktop-opening-status:hover .hours-shortcut-label { color: var(--cream); }
+
+@media (min-width: 1025px) {
+  .desktop-opening-status { border-right: 1px solid rgba(243,237,225,.14); }
+  .desktop-opening-status strong { font-size: .8125rem; letter-spacing: .04em; }
+  .desktop-opening-status small { color: rgba(243,237,225,.78); font-size: .75rem; }
+}
+
+@media (max-width: 760px) {
+  .menu-tabs button, .menu-tabs button:last-child { border-color: rgba(243,237,225,.3); color: rgba(243,237,225,.85); font-size: .875rem; letter-spacing: .035em; }
+  .menu-tabs button[aria-selected="true"] { color: var(--ink); }
+  .menu-item { grid-template-columns: 24px minmax(0, 1fr); gap: .8rem; }
+  .menu-item p { font-size: 1rem; }
+  .item-number { font-size: .75rem; }
+  .food-information-trigger > span:first-child { font-size: .875rem; letter-spacing: .07em; }
+  .food-information-trigger small { font-size: .75rem; color: rgba(243,237,225,.78); }
+  .opening-status { min-height: 52px; padding: .2rem 0; }
+  .opening-status > span:not(.status-dot) { width: auto; height: auto; border-radius: 0; background: none; box-shadow: none; }
+  .opening-status strong, .opening-status small { overflow: visible; white-space: normal; }
+  .opening-status strong { font-size: .8125rem; }
+  .opening-status small { color: rgba(243,237,225,.78); font-size: .75rem; }
+  .mobile-quickbar > a { padding-inline: .6rem; font-size: .75rem; letter-spacing: .04em; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }

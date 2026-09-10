@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 
 type Language = "ro" | "en";
 type MenuCategory = "coffee" | "notCoffee" | "brunch" | "sweet";
 type SectionId = "top" | "story" | "menu" | "reviews" | "visit" | "gallery";
-type FoodTag = "milk" | "gluten" | "eggs" | "nuts" | "alcoholFree" | "plantOption";
+type FoodTag = "milk" | "gluten" | "eggs" | "nuts" | "alcoholFree" | "plantOption" | "plantIncluded";
 
 const copy = {
   ro: {
@@ -25,9 +25,9 @@ const copy = {
     menuIntro: "Cafea de specialitate, băuturi reci, ciabatta și deserturi — toate într-un singur loc.",
     foodInfo: "Informații alimentare", showFoodInfo: "Vezi informațiile alimentare", hideFoodInfo: "Ascunde informațiile alimentare",
     foodInfoIntro: "Marcajele sunt orientative și se bazează pe rețetele obișnuite. Ingredientele și riscul de contaminare încrucișată pot varia; dacă ai alergii sau intoleranțe, confirmă întotdeauna cu barista înainte de comandă.",
-    plantInfo: "Laptele vegetal este disponibil în funcție de stoc și se adaugă la prețul afișat.",
+    plantInfo: "Înlocuirea laptelui obișnuit cu lapte vegetal costă +5 RON doar la băuturile marcate cu această opțiune, în funcție de stoc. Matcha Latte și Iced Strawberry Matcha se prepară cu lapte vegetal, deja inclus în preț.",
     plantSurcharge: "+5 RON",
-    foodTags: { milk: "Lapte", gluten: "Gluten", eggs: "Ouă", nuts: "Fructe cu coajă", alcoholFree: "Fără alcool", plantOption: "Lapte vegetal" },
+    foodTags: { milk: "Lapte", gluten: "Gluten", eggs: "Ouă", nuts: "Fructe cu coajă", alcoholFree: "Fără alcool", plantOption: "Lapte vegetal", plantIncluded: "Lapte vegetal inclus" },
     itemFoodInfo: "Informații orientative despre ingrediente",
     categories: { coffee: "Cafea caldă", notCoffee: "Rece & bar", brunch: "Ciabatta", sweet: "Deserturi" },
     galleryKicker: "Galerie", galleryTitle: <>Texturi, lumină<br />și cafea bună.</>,
@@ -61,9 +61,9 @@ const copy = {
     menuIntro: "Specialty coffee, cold drinks, ciabatta, and sweets — all in one place.",
     foodInfo: "Food information", showFoodInfo: "View food information", hideFoodInfo: "Hide food information",
     foodInfoIntro: "Markers are a guide based on the usual recipes. Ingredients and cross-contamination risks may vary; if you have allergies or intolerances, always confirm with the barista before ordering.",
-    plantInfo: "Plant milk is available depending on stock and is added to the displayed price.",
+    plantInfo: "Replacing regular milk with plant milk costs +5 RON only for drinks marked with this option, subject to availability. Matcha Latte and Iced Strawberry Matcha are made with plant milk, already included in the price.",
     plantSurcharge: "+5 RON",
-    foodTags: { milk: "Milk", gluten: "Gluten", eggs: "Eggs", nuts: "Tree nuts", alcoholFree: "Alcohol-free", plantOption: "Plant milk" },
+    foodTags: { milk: "Milk", gluten: "Gluten", eggs: "Eggs", nuts: "Tree nuts", alcoholFree: "Alcohol-free", plantOption: "Plant milk", plantIncluded: "Plant milk included" },
     itemFoodInfo: "Indicative ingredient information",
     categories: { coffee: "Hot coffee", notCoffee: "Cold & bar", brunch: "Ciabatta", sweet: "Sweets" },
     galleryKicker: "Gallery", galleryTitle: <>Texture, light<br />and good coffee.</>,
@@ -98,7 +98,7 @@ const menuItems = {
     { ro: "Latte", en: "Latte", noteRo: "300 ml", noteEn: "300 ml", price: "21 lei" },
     { ro: "V60 / Rarity", en: "V60 / Rarity", noteRo: "250 ml", noteEn: "250 ml", price: "23 / 33 lei" },
     { ro: "Ciocolată caldă", en: "Hot Chocolate", noteRo: "220 ml", noteEn: "220 ml", price: "19 lei" },
-    { ro: "Matcha Latte", en: "Matcha Latte", noteRo: "220 ml · lapte vegetal inclus", noteEn: "220 ml · plant milk included", price: "23 lei" },
+    { ro: "Matcha Latte", en: "Matcha Latte", noteRo: "220 ml", noteEn: "220 ml", price: "23 lei" },
     { ro: "Babyccino", en: "Babyccino", noteRo: "220 ml", noteEn: "220 ml", price: "15 lei" },
     { ro: "Ceai", en: "Tea", noteRo: "250 ml", noteEn: "250 ml", price: "17 lei" },
   ],
@@ -137,13 +137,16 @@ const menuItems = {
   ],
 } as const;
 
-const milkDrinks = new Set([
+const plantMilkIncludedDrinks = new Set(["Matcha Latte", "Iced Strawberry Matcha"]);
+
+const milkSubstitutionDrinks = new Set([
   "Cortado", "Cappuccino", "Flat White", "Latte", "Ciocolată caldă", "Babyccino",
-  "Cold Brew Latte", "Iced Latte", "Iced Strawberry Matcha",
+  "Cold Brew Latte", "Iced Latte",
 ]);
 
 function getFoodTags(category: MenuCategory, itemName: string): FoodTag[] {
-  if (milkDrinks.has(itemName)) return ["milk", "plantOption"];
+  if (plantMilkIncludedDrinks.has(itemName)) return ["plantIncluded"];
+  if (milkSubstitutionDrinks.has(itemName)) return ["milk", "plantOption"];
   if (category === "brunch") return itemName === "Cotto" ? ["gluten", "milk", "nuts"] : ["gluten", "milk"];
   if (category === "sweet") return itemName === "Pricomigdale" ? ["nuts", "eggs"] : ["gluten", "milk", "eggs"];
   if (itemName === "Cocktail F.A.") return ["alcoholFree"];
@@ -338,6 +341,8 @@ export default function Home() {
   const lightboxCloseRef = useRef<HTMLButtonElement>(null);
   const swipeStartX = useRef<number | null>(null);
   const copyResetTimer = useRef<number | null>(null);
+  const menuStartRef = useRef<HTMLDivElement>(null);
+  const categoryScrollPending = useRef(false);
   const t = copy[language];
   const visibleGalleryImages = galleryExpanded ? galleryImages : galleryImages.slice(0, galleryPreviewCount);
   const isLightboxOpen = lightboxIndex !== null;
@@ -345,6 +350,24 @@ export default function Home() {
   useEffect(() => {
     if (galleryExpanded) firstExtraPhotoRef.current?.focus({ preventScroll: true });
   }, [galleryExpanded]);
+  useLayoutEffect(() => {
+    if (!categoryScrollPending.current || !menuStartRef.current) return;
+    categoryScrollPending.current = false;
+    window.scrollTo({ top: window.scrollY + menuStartRef.current.getBoundingClientRect().top - 12, behavior: "instant" });
+  }, [category]);
+  const selectMenuCategory = (nextCategory: MenuCategory) => {
+    if (nextCategory === category) return;
+    categoryScrollPending.current = true;
+    setCategory(nextCategory);
+  };
+  const showOpeningHours = () => {
+    const hours = document.getElementById("opening-hours");
+    if (!hours) return;
+    window.history.replaceState(null, "", "#opening-hours");
+    hours.focus({ preventScroll: true });
+    hours.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    setActiveSection("visit");
+  };
   const storyDetails = [
     { title: t.detail1, body: t.detailBody1 },
     { title: t.detail2, body: t.detailBody2 },
@@ -373,13 +396,14 @@ export default function Home() {
     let nextIndex: number | null = null;
     if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % menuCategoryKeys.length;
     if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + menuCategoryKeys.length) % menuCategoryKeys.length;
+    if (window.matchMedia("(max-width: 760px)").matches && (event.key === "ArrowDown" || event.key === "ArrowUp")) nextIndex = (currentIndex + 2) % menuCategoryKeys.length;
     if (event.key === "Home") nextIndex = 0;
     if (event.key === "End") nextIndex = menuCategoryKeys.length - 1;
     if (nextIndex === null) return;
     event.preventDefault();
     const nextCategory = menuCategoryKeys[nextIndex];
-    setCategory(nextCategory);
-    document.getElementById(`menu-tab-${nextCategory}`)?.focus();
+    selectMenuCategory(nextCategory);
+    document.getElementById(`menu-tab-${nextCategory}`)?.focus({ preventScroll: true });
   };
   const copyAddressToClipboard = async () => {
     try {
@@ -515,13 +539,14 @@ export default function Home() {
       </header>
 
       <nav className="desktop-navigation" aria-label={language === "ro" ? "Navigație pe secțiuni" : "Section navigation"}>
-        <div className={`desktop-opening-status ${openingStatus?.isOpen ? "is-open" : "is-closed"}`} aria-live="polite">
+        <button type="button" onClick={showOpeningHours} className={`desktop-opening-status ${openingStatus?.isOpen ? "is-open" : "is-closed"}`} aria-live="polite">
           <span className="desktop-status-dot" aria-hidden="true" />
-          <div>
+          <span>
             <strong>{openingStatus ? (openingStatus.isOpen ? t.openNow : t.closedNow) : t.checkingHours}</strong>
             {openingStatus?.nextTime && <small>{openingStatus.phase === "during" ? t.until : t.opensAt} {openingStatus.nextTime}</small>}
-          </div>
-        </div>
+            <small className="hours-shortcut-label">{t.hoursLabel} ↗</small>
+          </span>
+        </button>
         {sideNavItems.map(([id, label], index) => (
           <a key={id} href={`#${id}`} aria-current={activeSection === id ? "location" : undefined} onClick={(event) => scrollToSection(event, id)}>
             <span className="desktop-nav-number">{String(index + 1).padStart(2, "0")}</span>
@@ -588,8 +613,9 @@ export default function Home() {
               <ul aria-label={t.foodInfo}>{(Object.keys(t.foodTags) as FoodTag[]).map((tag) => <li className={tag === "plantOption" ? "surcharge-tag" : undefined} key={tag}><span>{t.foodTags[tag]}</span>{tag === "plantOption" && <strong>{t.plantSurcharge}</strong>}</li>)}</ul>
             </div>
           </div>
+          <div ref={menuStartRef} className="menu-category-start" />
           <div className="menu-tabs" role="tablist" aria-label={t.menuKicker}>
-            {menuCategoryKeys.map((key) => <button type="button" id={`menu-tab-${key}`} key={key} role="tab" aria-selected={category === key} aria-controls="menu-panel" tabIndex={category === key ? 0 : -1} onClick={() => setCategory(key)} onKeyDown={(event) => handleMenuTabKeyDown(event, key)}>{t.categories[key]}</button>)}
+            {menuCategoryKeys.map((key) => <button type="button" id={`menu-tab-${key}`} key={key} role="tab" aria-selected={category === key} aria-controls="menu-panel" tabIndex={category === key ? 0 : -1} onClick={() => selectMenuCategory(key)} onKeyDown={(event) => handleMenuTabKeyDown(event, key)}>{t.categories[key]}</button>)}
           </div>
           <div className="menu-list" id="menu-panel" key={category} role="tabpanel" aria-labelledby={`menu-tab-${category}`} tabIndex={0}>
             {menuItems[category].map((item, index) => {
@@ -626,7 +652,7 @@ export default function Home() {
           <div className="visit-copy"><div className="section-kicker light"><span>05</span>{t.visitKicker}</div><h2>{t.visitTitle}</h2>
             <div className="visit-details">
               <div className="address-block"><span>{t.addressLabel}</span><address>{t.address}</address><div className="address-actions"><a href={mapsUrl} target="_blank" rel="noreferrer">{t.directions} <span aria-hidden="true">↗</span></a><button type="button" className="address-copy" onClick={copyAddressToClipboard} aria-live="polite">{copyStatus === "copied" ? t.addressCopied : copyStatus === "failed" ? t.addressCopyFailed : t.copyAddress}</button></div></div>
-              <div className="hours-block"><span>{t.hoursLabel}</span><dl>{t.hours.map(([day, time]) => <div key={day}><dt>{day}</dt><dd>{time}</dd></div>)}</dl></div>
+              <div className="hours-block" id="opening-hours" tabIndex={-1} role="region" aria-label={t.hoursLabel}><span>{t.hoursLabel}</span><dl>{t.hours.map(([day, time]) => <div key={day}><dt>{day}</dt><dd>{time}</dd></div>)}</dl></div>
             </div>
             <a className="instagram-link" href={instagramUrl} target="_blank" rel="noreferrer" aria-label={`${t.instagram}: @harborcafe.bucuresti`}><span>{t.instagram}</span><strong>@harborcafe.bucuresti</strong><span aria-hidden="true">↗</span></a>
           </div>
@@ -647,13 +673,14 @@ export default function Home() {
       <footer><div className="footer-brand"><img src={assetUrl("harbor-cafe-logo.png")} alt="" /><div><strong>Harbor Cafe</strong><span>{t.footerLine}</span></div></div><a href="#top" className="back-top" aria-label={t.home}>↑</a><p><a href={instagramUrl} target="_blank" rel="noreferrer">Instagram</a> · {t.footerNote} · {new Date().getFullYear()}</p></footer>
 
       {!menuOpen && <aside className="mobile-quickbar" aria-label={language === "ro" ? "Acces rapid" : "Quick access"}>
-        <div className={`opening-status ${openingStatus?.isOpen ? "is-open" : "is-closed"}`} aria-live="polite">
-          <span aria-hidden="true" />
-          <div>
+        <button type="button" onClick={showOpeningHours} className={`opening-status ${openingStatus?.isOpen ? "is-open" : "is-closed"}`} aria-live="polite">
+          <span className="status-dot" aria-hidden="true" />
+          <span>
             <strong>{openingStatus ? (openingStatus.isOpen ? t.openNow : t.closedNow) : t.checkingHours}</strong>
             {openingStatus?.nextTime && <small>{openingStatus.phase === "during" ? t.until : t.opensAt} {openingStatus.nextTime}</small>}
-          </div>
-        </div>
+            <small className="hours-shortcut-label">{t.hoursLabel} ↗</small>
+          </span>
+        </button>
         <a href="#menu">{t.quickMenu}</a>
         <a href={mapsUrl} target="_blank" rel="noreferrer">{t.quickMap} <span aria-hidden="true">↗</span></a>
       </aside>}
