@@ -32,7 +32,7 @@ const copy = {
     categories: { coffee: "Cafea caldă", notCoffee: "Rece & bar", brunch: "Ciabatta", sweet: "Deserturi" },
     galleryKicker: "Galerie", galleryTitle: <>Texturi, lumină<br />și cafea bună.</>,
     galleryNote: "O privire în atmosfera Harbor Cafe — lumină caldă, cafea pregătită cu grijă și ceva bun alături.",
-    showAllPhotos: "Vezi toate fotografiile", photosLabel: "fotografii",
+    showAllPhotos: "Vezi toate fotografiile", showFewerPhotos: "Arată mai puține", photosLabel: "fotografii",
     reviewsUpdated: "Scor și număr de recenzii introduse pe site la", reviewsSnapshotDate: "3 septembrie 2026", reviewsUpdateNote: "Actualizate manual, nu în timp real.",
     viewPhoto: "Deschide fotografia", lightboxLabel: "Galeria Harbor Cafe", closeGallery: "Închide galeria", previousPhoto: "Fotografia anterioară", nextPhoto: "Fotografia următoare", photoOf: "din",
     reviewsKicker: "Recenzii Google", reviewsTitle: <>Cuvinte lăsate<br />de oaspeții noștri.</>,
@@ -68,7 +68,7 @@ const copy = {
     categories: { coffee: "Hot coffee", notCoffee: "Cold & bar", brunch: "Ciabatta", sweet: "Sweets" },
     galleryKicker: "Gallery", galleryTitle: <>Texture, light<br />and good coffee.</>,
     galleryNote: "A glimpse into Harbor Cafe — warm light, carefully made coffee, and something good on the side.",
-    showAllPhotos: "View all photos", photosLabel: "photos",
+    showAllPhotos: "View all photos", showFewerPhotos: "Show fewer photos", photosLabel: "photos",
     reviewsUpdated: "Rating and review count added to this site on", reviewsSnapshotDate: "3 September 2026", reviewsUpdateNote: "Updated manually, not in real time.",
     viewPhoto: "Open photo", lightboxLabel: "Harbor Cafe gallery", closeGallery: "Close gallery", previousPhoto: "Previous photo", nextPhoto: "Next photo", photoOf: "of",
     reviewsKicker: "Google reviews", reviewsTitle: <>Words from<br />our guests.</>,
@@ -334,6 +334,8 @@ export default function Home() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [galleryExpanded, setGalleryExpanded] = useState(false);
   const firstExtraPhotoRef = useRef<HTMLButtonElement>(null);
+  const galleryToggleRef = useRef<HTMLButtonElement>(null);
+  const galleryCollapsePending = useRef(false);
   const [openingStatus, setOpeningStatus] = useState<OpeningStatus | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
   const [foodInfoOpen, setFoodInfoOpen] = useState(false);
@@ -349,6 +351,12 @@ export default function Home() {
   const activeDetail = hoveredDetail ?? expandedDetail;
   useEffect(() => {
     if (galleryExpanded) firstExtraPhotoRef.current?.focus({ preventScroll: true });
+  }, [galleryExpanded]);
+  useLayoutEffect(() => {
+    if (galleryExpanded || !galleryCollapsePending.current) return;
+    galleryCollapsePending.current = false;
+    galleryToggleRef.current?.focus({ preventScroll: true });
+    galleryToggleRef.current?.scrollIntoView({ block: "center", behavior: "instant" });
   }, [galleryExpanded]);
   useLayoutEffect(() => {
     if (!categoryScrollPending.current || !menuStartRef.current) return;
@@ -665,7 +673,7 @@ export default function Home() {
           <div className="gallery-grid" id="gallery-grid">{visibleGalleryImages.map((image, index) => <figure key={image.src} className={`gallery-item gallery-item-${index + 1}`}><button type="button" ref={index === galleryPreviewCount ? firstExtraPhotoRef : undefined} className="gallery-image-button" aria-label={`${t.viewPhoto}: ${t.galleryAlts[index]}`} aria-haspopup="dialog" onClick={() => setLightboxIndex(index)}><GalleryPicture image={image} sizes="(max-width: 760px) 91vw, 55vw" alt={t.galleryAlts[index]} /></button><figcaption><span>{String(index + 1).padStart(2, "0")}</span> Harbor Cafe</figcaption></figure>)}</div>
           <div className="gallery-footer">
             <p role="status">{visibleGalleryImages.length} {t.photoOf} {galleryImages.length} {t.photosLabel}</p>
-            {!galleryExpanded && <button type="button" aria-controls="gallery-grid" aria-expanded={galleryExpanded} onClick={() => setGalleryExpanded(true)}>{t.showAllPhotos}<span aria-hidden="true">＋</span></button>}
+            <button ref={galleryToggleRef} type="button" aria-controls="gallery-grid" aria-expanded={galleryExpanded} onClick={() => { galleryCollapsePending.current = galleryExpanded; setGalleryExpanded(!galleryExpanded); }}>{galleryExpanded ? t.showFewerPhotos : t.showAllPhotos}<span aria-hidden="true">{galleryExpanded ? "−" : "＋"}</span></button>
           </div>
         </section>
       </main>
