@@ -334,6 +334,7 @@ function getOpeningStatus(now = new Date()): OpeningStatus {
 
 export default function Home() {
   const language = useSyncExternalStore(subscribeToLanguage, getClientLanguage, getServerLanguage);
+  const [showBrandIntro, setShowBrandIntro] = useState(true);
   const [category, setCategory] = useState<MenuCategory>("coffee");
   const [menuOpen, setMenuOpen] = useState(false);
   const [expandedDetail, setExpandedDetail] = useState<number | null>(null);
@@ -358,6 +359,25 @@ export default function Home() {
   const visibleGalleryImages = galleryExpanded ? galleryImages : galleryImages.slice(0, galleryPreviewCount);
   const isLightboxOpen = lightboxIndex !== null;
   const activeDetail = hoveredDetail ?? expandedDetail;
+  useEffect(() => {
+    const dismiss = () => setShowBrandIntro(false);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const timeout = window.setTimeout(dismiss, reducedMotion.matches ? 0 : 1500);
+    // Keep the entrance decorative: any interaction immediately reveals the page.
+    window.addEventListener("pointerdown", dismiss, { once: true });
+    window.addEventListener("keydown", dismiss, { once: true });
+    window.addEventListener("wheel", dismiss, { once: true, passive: true });
+    window.addEventListener("touchstart", dismiss, { once: true, passive: true });
+    reducedMotion.addEventListener("change", dismiss, { once: true });
+    return () => {
+      window.clearTimeout(timeout);
+      window.removeEventListener("pointerdown", dismiss);
+      window.removeEventListener("keydown", dismiss);
+      window.removeEventListener("wheel", dismiss);
+      window.removeEventListener("touchstart", dismiss);
+      reducedMotion.removeEventListener("change", dismiss);
+    };
+  }, []);
   useEffect(() => {
     if (galleryExpanded) firstExtraPhotoRef.current?.focus({ preventScroll: true });
   }, [galleryExpanded]);
@@ -549,6 +569,13 @@ export default function Home() {
 
   return (
     <>
+      {showBrandIntro && <div className="brand-intro" aria-hidden="true">
+        <div className="brand-intro-content">
+          <img className="brand-intro-logo" src={assetUrl("harbor-cafe-round-192.png")} width={128} height={128} alt="" />
+          <span className="brand-intro-name">Harbor Cafe</span>
+          <span className="brand-intro-line" />
+        </div>
+      </div>}
       <a className="skip-link" href="#content">{t.skip}</a>
       <header className={`site-header ${menuOpen ? "is-open" : ""}`}>
         <a className="wordmark" href="#top" aria-label={`Harbor Cafe — ${t.home}`} onClick={(event) => scrollToSection(event, "top")}>Harbor Cafe</a>
