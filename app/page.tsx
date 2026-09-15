@@ -349,6 +349,8 @@ export default function Home() {
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
   const [foodInfoOpen, setFoodInfoOpen] = useState(false);
   const visibleReviews = useSyncExternalStore(subscribeToReviewSelection, getClientReviews, getServerReviews);
+  const [reviewPhase, setReviewPhase] = useState<"idle" | "leaving" | "entering">("idle");
+  const reviewRefreshTimer = useRef<number | null>(null);
   const lightboxCloseRef = useRef<HTMLButtonElement>(null);
   const swipeStartX = useRef<number | null>(null);
   const copyResetTimer = useRef<number | null>(null);
@@ -359,6 +361,26 @@ export default function Home() {
   const visibleGalleryImages = galleryExpanded ? galleryImages : galleryImages.slice(0, galleryPreviewCount);
   const isLightboxOpen = lightboxIndex !== null;
   const activeDetail = hoveredDetail ?? expandedDetail;
+  const refreshReviews = () => {
+    // Ignore repeated clicks until the current transition has finished.
+    if (reviewRefreshTimer.current !== null) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      showOtherReviewSelection();
+      return;
+    }
+    setReviewPhase("leaving");
+    reviewRefreshTimer.current = window.setTimeout(() => {
+      showOtherReviewSelection();
+      setReviewPhase("entering");
+      reviewRefreshTimer.current = window.setTimeout(() => {
+        setReviewPhase("idle");
+        reviewRefreshTimer.current = null;
+      }, 600);
+    }, 200);
+  };
+  useEffect(() => () => {
+    if (reviewRefreshTimer.current !== null) window.clearTimeout(reviewRefreshTimer.current);
+  }, []);
   useEffect(() => {
     const dismiss = () => setShowBrandIntro(false);
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -688,14 +710,14 @@ export default function Home() {
               <a className="reviews-google-link" href={mapsUrl} target="_blank" rel="noreferrer">{t.viewAllReviews} <span aria-hidden="true">↗</span></a>
             </div>
           </div>
-          <div className="reviews-grid">
+          <div className="reviews-grid" id="reviews-grid" data-phase={reviewPhase} aria-busy={reviewPhase !== "idle"}>
             {visibleReviews.map((review, index) => <article className="review-card" key={review.author}>
               <div className="review-card-top"><span>0{index + 1}</span><div className="review-stars" aria-label={t.ratingLabel}><span aria-hidden="true">★★★★★</span></div></div>
               <blockquote><p>“{review.quote}”</p></blockquote>
               <cite><span><strong>{review.author}</strong><small>{t.googleReview}</small></span><a href={review.sourceUrl} target="_blank" rel="noreferrer" aria-label={`${t.openReview}: ${review.author}`}>{t.openReview} <span aria-hidden="true">↗</span></a></cite>
             </article>)}
           </div>
-          <div className="reviews-footer"><button type="button" onClick={showOtherReviewSelection}>{t.showOtherReviews} <span aria-hidden="true">↻</span></button></div>
+          <div className="reviews-footer"><button type="button" onClick={refreshReviews} aria-controls="reviews-grid" aria-disabled={reviewPhase !== "idle"}>{t.showOtherReviews} <span aria-hidden="true">↻</span></button></div>
         </section>
 
         <section className="visit-section" id="visit">

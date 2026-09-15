@@ -239,6 +239,15 @@ h1 { margin: 0; max-width: 750px; font-size: clamp(4.2rem, 7.7vw, 8rem); letter-
 .reviews-grid { position: relative; margin-top: clamp(3.5rem, 7vw, 7rem); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid rgba(243,237,225,.18); border-left: 1px solid rgba(243,237,225,.18); }
 .review-card { min-height: 360px; padding: clamp(1.5rem, 3vw, 2.5rem); border-right: 1px solid rgba(243,237,225,.18); border-bottom: 1px solid rgba(243,237,225,.18); display: flex; flex-direction: column; transition: background .3s ease, transform .3s ease; }
 .review-card:hover { background: rgba(243,237,225,.045); transform: translateY(-3px); }
+.review-card > * { transition: opacity .2s ease, translate .2s ease; }
+.reviews-grid[data-phase="leaving"] .review-card > * { opacity: 0; translate: 0 -6px; }
+.reviews-grid[data-phase="entering"] .review-card > * { animation: review-reveal .4s cubic-bezier(.22, 1, .36, 1) both; }
+.reviews-grid[data-phase="entering"] .review-card:nth-child(2) > * { animation-delay: .08s; }
+.reviews-grid[data-phase="entering"] .review-card:nth-child(3) > * { animation-delay: .16s; }
+@keyframes review-reveal {
+  from { opacity: 0; translate: 0 12px; }
+  to { opacity: 1; translate: 0 0; }
+}
 .review-card-top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; color: #d3a389; font-size: .62rem; letter-spacing: .1em; }
 .review-stars { color: #e0b39a; font-size: .72rem; letter-spacing: .16em; }
 .review-card blockquote { margin: auto 0; }
@@ -254,6 +263,12 @@ h1 { margin: 0; max-width: 750px; font-size: clamp(4.2rem, 7.7vw, 8rem); letter-
 .reviews-footer button span { font-size: 1rem; transition: transform .3s ease; }
 .reviews-footer button:hover, .reviews-footer button:focus-visible { border-color: var(--cream); background: var(--cream); color: var(--ink); }
 .reviews-footer button:hover span { transform: rotate(120deg); }
+.reviews-footer button[aria-disabled="true"] { cursor: default; }
+.reviews-footer button[aria-disabled="true"] span { animation: review-refresh-turn .8s cubic-bezier(.4, 0, .2, 1) both; }
+@keyframes review-refresh-turn {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 
 .visit-section { background: var(--rust); color: var(--cream); display: grid; grid-template-columns: .88fr 1.12fr; min-height: 760px; }
 .visit-copy { padding: clamp(4.5rem, 8vw, 8rem) 4.5vw; display: flex; flex-direction: column; }
