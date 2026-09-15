@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 
 type Language = "ro" | "en";
 type MenuCategory = "coffee" | "notCoffee" | "brunch" | "sweet";
@@ -336,11 +336,17 @@ export default function Home() {
   const language = useSyncExternalStore(subscribeToLanguage, getClientLanguage, getServerLanguage);
   const [showBrandIntro, setShowBrandIntro] = useState(true);
   const [category, setCategory] = useState<MenuCategory>("coffee");
+  const [displayedCategory, setDisplayedCategory] = useState<MenuCategory>("coffee");
+  const [menuLeaving, setMenuLeaving] = useState(false);
+  const menuTransitionTimer = useRef<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [expandedDetail, setExpandedDetail] = useState<number | null>(null);
   const [hoveredDetail, setHoveredDetail] = useState<number | null>(null);
   const [activeSection, setActiveSection] = useState<SectionId>("top");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [lightboxClosing, setLightboxClosing] = useState(false);
+  const lightboxExitTimer = useRef<number | null>(null);
+  const desktopNavigationRef = useRef<HTMLElement>(null);
   const [galleryExpanded, setGalleryExpanded] = useState(false);
   const firstExtraPhotoRef = useRef<HTMLButtonElement>(null);
   const galleryToggleRef = useRef<HTMLButtonElement>(null);
@@ -413,12 +419,89 @@ export default function Home() {
     if (!categoryScrollPending.current || !menuStartRef.current) return;
     categoryScrollPending.current = false;
     window.scrollTo({ top: window.scrollY + menuStartRef.current.getBoundingClientRect().top - 12, behavior: "instant" });
-  }, [category]);
+  }, [displayedCategory]);
   const selectMenuCategory = (nextCategory: MenuCategory) => {
     if (nextCategory === category) return;
-    categoryScrollPending.current = true;
     setCategory(nextCategory);
+    if (menuTransitionTimer.current !== null) window.clearTimeout(menuTransitionTimer.current);
+    const swap = () => {
+      categoryScrollPending.current = true;
+      setDisplayedCategory(nextCategory);
+      setMenuLeaving(false);
+      menuTransitionTimer.current = null;
+    };
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) swap();
+    else {
+      setMenuLeaving(true);
+      menuTransitionTimer.current = window.setTimeout(swap, 160);
+    }
   };
+  const closeLightbox = useCallback(() => {
+    if (lightboxExitTimer.current !== null) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setLightboxIndex(null);
+      return;
+    }
+    setLightboxClosing(true);
+    lightboxExitTimer.current = window.setTimeout(() => {
+      setLightboxIndex(null);
+      setLightboxClosing(false);
+      lightboxExitTimer.current = null;
+    }, 220);
+  }, []);
+  useEffect(() => () => {
+    if (menuTransitionTimer.current !== null) window.clearTimeout(menuTransitionTimer.current);
+    if (lightboxExitTimer.current !== null) window.clearTimeout(lightboxExitTimer.current);
+  }, []);
+
+  useLayoutEffect(() => {
+    const navigation = desktopNavigationRef.current;
+    if (!navigation) return;
+    const updateIndicator = () => {
+      const active = navigation.querySelector<HTMLElement>('a[aria-current="location"]');
+      if (!active || !active.offsetWidth) return;
+      navigation.style.setProperty("--nav-x", `${active.offsetLeft}px`);
+      navigation.style.setProperty("--nav-y", `${active.offsetTop}px`);
+      navigation.style.setProperty("--nav-width", `${active.offsetWidth}px`);
+      navigation.style.setProperty("--nav-height", `${active.offsetHeight}px`);
+      navigation.dataset.indicator = "ready";
+    };
+    updateIndicator();
+    const observer = new ResizeObserver(updateIndicator);
+    observer.observe(navigation);
+    navigation.querySelectorAll("a, button").forEach((item) => observer.observe(item));
+    return () => observer.disconnect();
+  }, [activeSection, language]);
+
+  useEffect(() => {
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (motion.matches || !("IntersectionObserver" in window)) return;
+    const targets = document.querySelectorAll<HTMLElement>(".section-kicker, .story-heading, .story-copy, .menu-heading, .reviews-heading, .visit-copy > h2, .gallery-heading");
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.remove("reveal-pending");
+        entry.target.classList.add("reveal-arriving");
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.08 });
+    targets.forEach((target) => {
+      if (target.getBoundingClientRect().top < window.innerHeight) return;
+      target.classList.add("reveal-pending");
+      observer.observe(target);
+    });
+    const revealAll = () => {
+      if (!motion.matches) return;
+      observer.disconnect();
+      targets.forEach((target) => target.classList.remove("reveal-pending", "reveal-arriving"));
+    };
+    motion.addEventListener("change", revealAll);
+    return () => {
+      observer.disconnect();
+      motion.removeEventListener("change", revealAll);
+      targets.forEach((target) => target.classList.remove("reveal-pending", "reveal-arriving"));
+    };
+  }, []);
   const showOpeningHours = () => {
     const hours = document.getElementById("opening-hours");
     if (!hours) return;
@@ -563,7 +646,7 @@ export default function Home() {
     lightboxCloseRef.current?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setLightboxIndex(null);
+      if (event.key === "Escape") closeLightbox();
       if (event.key === "ArrowLeft") setLightboxIndex((current) => current === null ? null : (current - 1 + galleryImages.length) % galleryImages.length);
       if (event.key === "ArrowRight") setLightboxIndex((current) => current === null ? null : (current + 1) % galleryImages.length);
       if (event.key === "Tab") {
@@ -587,7 +670,7 @@ export default function Home() {
       document.body.style.overflow = previousOverflow;
       previouslyFocused?.focus();
     };
-  }, [isLightboxOpen]);
+  }, [isLightboxOpen, closeLightbox]);
 
   return (
     <>
@@ -610,7 +693,8 @@ export default function Home() {
         </div>
       </header>
 
-      <nav className="desktop-navigation" aria-label={language === "ro" ? "Navigație pe secțiuni" : "Section navigation"}>
+      <nav ref={desktopNavigationRef} className="desktop-navigation" aria-label={language === "ro" ? "Navigație pe secțiuni" : "Section navigation"}>
+        <span className="desktop-navigation-indicator" aria-hidden="true" />
         <button type="button" onClick={showOpeningHours} className={`desktop-opening-status ${openingStatus?.isOpen ? "is-open" : "is-closed"}`} aria-live="polite">
           <span className="desktop-status-dot" aria-hidden="true" />
           <span>
@@ -656,7 +740,7 @@ export default function Home() {
                       <button type="button" className="story-detail-trigger" aria-expanded={isActive} aria-controls={panelId} aria-label={`${detail.title}: ${isActive ? t.collapseDetail : t.expandDetail}`} onClick={() => setExpandedDetail((current) => current === index ? null : index)}>
                         <span className="story-detail-number">0{index + 1}</span>
                         <strong>{detail.title}</strong>
-                        <span className="story-detail-icon" aria-hidden="true">+</span>
+                        <span className="story-detail-icon expanding-icon" aria-hidden="true" />
                       </button>
                       <div className="story-detail-panel" id={panelId} aria-hidden={!isActive}>
                         <div className="story-detail-content">
@@ -676,22 +760,26 @@ export default function Home() {
           <div className="menu-heading"><div><h2>{t.menuTitle}</h2></div><p>{t.menuIntro}</p></div>
           <div className="food-information">
             <button type="button" className="food-information-trigger" aria-expanded={foodInfoOpen} aria-controls="food-information-panel" onClick={() => setFoodInfoOpen((open) => !open)}>
-              <span>{t.foodInfo}</span><span aria-hidden="true">{foodInfoOpen ? "−" : "+"}</span>
+              <span>{t.foodInfo}</span><span className="expanding-icon" aria-hidden="true" />
               <small>{foodInfoOpen ? t.hideFoodInfo : t.showFoodInfo}</small>
             </button>
-            <div className="food-information-panel" id="food-information-panel" hidden={!foodInfoOpen}>
+            <div className="food-information-expander" data-open={foodInfoOpen} aria-hidden={!foodInfoOpen} inert={!foodInfoOpen}>
+            <div className="food-information-clip">
+            <div className="food-information-panel" id="food-information-panel">
               <p>{t.foodInfoIntro}</p>
               <p>{t.plantInfo}</p>
               <ul aria-label={t.foodInfo}>{(Object.keys(t.foodTags) as FoodTag[]).map((tag) => <li className={tag === "plantOption" ? "surcharge-tag" : undefined} key={tag}><span>{t.foodTags[tag]}</span>{tag === "plantOption" && <strong>{t.plantSurcharge}</strong>}</li>)}</ul>
+            </div>
+            </div>
             </div>
           </div>
           <div ref={menuStartRef} className="menu-category-start" />
           <div className="menu-tabs" role="tablist" aria-label={t.menuKicker}>
             {menuCategoryKeys.map((key) => <button type="button" id={`menu-tab-${key}`} key={key} role="tab" aria-label={`${t.categories[key]}, ${menuItems[key].length} ${t.productsLabel}`} aria-selected={category === key} aria-controls="menu-panel" tabIndex={category === key ? 0 : -1} onClick={() => selectMenuCategory(key)} onKeyDown={(event) => handleMenuTabKeyDown(event, key)}><span>{t.categories[key]}</span><span className="menu-category-count" aria-hidden="true">{menuItems[key].length}</span></button>)}
           </div>
-          <div className="menu-list" id="menu-panel" key={category} role="tabpanel" aria-labelledby={`menu-tab-${category}`} tabIndex={0}>
-            {menuItems[category].map((item, index) => {
-              const foodTags = getFoodTags(category, item.ro);
+          <div className={`menu-list ${menuLeaving ? "is-leaving" : ""}`} id="menu-panel" key={displayedCategory} role="tabpanel" aria-busy={menuLeaving} aria-labelledby={`menu-tab-${displayedCategory}`} tabIndex={0}>
+            {menuItems[displayedCategory].map((item, index) => {
+              const foodTags = getFoodTags(displayedCategory, item.ro);
               return <article className="menu-item" key={item.ro}><span className="item-number">{String(index + 1).padStart(2, "0")}</span><div><h3>{item[language]}</h3><p>{language === "ro" ? item.noteRo : item.noteEn}</p>{foodTags.length > 0 && <ul className="item-tags" aria-label={t.itemFoodInfo}>{foodTags.map((tag) => <li className={tag === "plantOption" ? "surcharge-tag" : undefined} key={tag}><span>{t.foodTags[tag]}</span>{tag === "plantOption" && <strong>{t.plantSurcharge}</strong>}</li>)}</ul>}</div><span className="item-price">{`${item.price.replace(/ lei$/, "")} RON`}</span></article>;
             })}
           </div>
@@ -723,7 +811,7 @@ export default function Home() {
         <section className="visit-section" id="visit">
           <div className="visit-copy"><div className="section-kicker light"><span>05</span>{t.visitKicker}</div><h2>{t.visitTitle}</h2>
             <div className="visit-details">
-              <div className="address-block"><span>{t.addressLabel}</span><address>{t.address}</address><div className="address-actions"><a href={mapsUrl} target="_blank" rel="noreferrer">{t.directions} <span aria-hidden="true">↗</span></a><button type="button" className="address-copy" onClick={copyAddressToClipboard} aria-live="polite">{copyStatus === "copied" ? t.addressCopied : copyStatus === "failed" ? t.addressCopyFailed : t.copyAddress}</button></div></div>
+              <div className="address-block"><span>{t.addressLabel}</span><address>{t.address}</address><div className="address-actions"><a href={mapsUrl} target="_blank" rel="noreferrer">{t.directions} <span aria-hidden="true">↗</span></a><button type="button" className="address-copy" data-status={copyStatus} onClick={copyAddressToClipboard} aria-live="polite"><svg className="copy-feedback-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><g className="copy-symbol"><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /></g><path className="copy-check" d="m5 12 4 4L19 6" /></svg>{copyStatus === "copied" ? t.addressCopied : copyStatus === "failed" ? t.addressCopyFailed : t.copyAddress}</button></div></div>
               <div className="hours-block" id="opening-hours" tabIndex={-1} role="region" aria-label={t.hoursLabel}><span>{t.hoursLabel}</span><dl>{t.hours.map(([day, time], index) => <div key={day} className={openingStatus?.dayIndex === index ? "is-today" : undefined}><dt>{day}{openingStatus?.dayIndex === index && <em className="today-label">{t.today}</em>}</dt><dd>{time}</dd></div>)}</dl></div>
             </div>
             <a className="instagram-link" href={instagramUrl} target="_blank" rel="noreferrer" aria-label={`${t.instagram}: @harborcafe.bucuresti`}><span>{t.instagram}</span><strong>@harborcafe.bucuresti</strong><span aria-hidden="true">↗</span></a>
@@ -758,8 +846,8 @@ export default function Home() {
         <a href={mapsUrl} target="_blank" rel="noreferrer">{t.quickMap} <span aria-hidden="true">↗</span></a>
       </aside>}
 
-      {lightboxIndex !== null && <div className="lightbox" role="dialog" aria-modal="true" aria-label={t.lightboxLabel}>
-        <button ref={lightboxCloseRef} type="button" className="lightbox-close" aria-label={t.closeGallery} onClick={() => setLightboxIndex(null)}>×</button>
+      {lightboxIndex !== null && <div className={`lightbox ${lightboxClosing ? "is-closing" : ""}`} role="dialog" aria-modal="true" aria-label={t.lightboxLabel}>
+        <button ref={lightboxCloseRef} type="button" className="lightbox-close" aria-label={t.closeGallery} onClick={closeLightbox}>×</button>
         <button type="button" className="lightbox-nav lightbox-previous" aria-label={t.previousPhoto} onClick={showPreviousPhoto}>←</button>
         <figure className="lightbox-content" onPointerDown={(event) => { if (event.pointerType === "touch") swipeStartX.current = event.clientX; }} onPointerUp={(event) => {
           if (event.pointerType !== "touch" || swipeStartX.current === null) return;
