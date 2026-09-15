@@ -33,6 +33,8 @@ const copy = {
     galleryKicker: "Galerie", galleryTitle: <>Texturi, lumină<br />și cafea bună.</>,
     galleryNote: "O privire în atmosfera Harbor Cafe — lumină caldă, cafea pregătită cu grijă și ceva bun alături.",
     showAllPhotos: "Vezi toate fotografiile", showFewerPhotos: "Arată mai puține", photosLabel: "fotografii",
+    backToMenu: "Înapoi la meniu", productsLabel: "produse", today: "Azi",
+    closingIn: (minutes: number) => `Închidem în ${minutes} min`,
     reviewsUpdated: "Scor și număr de recenzii introduse pe site la", reviewsSnapshotDate: "3 septembrie 2026", reviewsUpdateNote: "Actualizate manual, nu în timp real.",
     viewPhoto: "Deschide fotografia", lightboxLabel: "Galeria Harbor Cafe", closeGallery: "Închide galeria", previousPhoto: "Fotografia anterioară", nextPhoto: "Fotografia următoare", photoOf: "din",
     reviewsKicker: "Recenzii Google", reviewsTitle: <>Cuvinte lăsate<br />de oaspeții noștri.</>,
@@ -69,6 +71,8 @@ const copy = {
     galleryKicker: "Gallery", galleryTitle: <>Texture, light<br />and good coffee.</>,
     galleryNote: "A glimpse into Harbor Cafe — warm light, carefully made coffee, and something good on the side.",
     showAllPhotos: "View all photos", showFewerPhotos: "Show fewer photos", photosLabel: "photos",
+    backToMenu: "Back to the menu", productsLabel: "items", today: "Today",
+    closingIn: (minutes: number) => `Closing in ${minutes} min`,
     reviewsUpdated: "Rating and review count added to this site on", reviewsSnapshotDate: "3 September 2026", reviewsUpdateNote: "Updated manually, not in real time.",
     viewPhoto: "Open photo", lightboxLabel: "Harbor Cafe gallery", closeGallery: "Close gallery", previousPhoto: "Previous photo", nextPhoto: "Next photo", photoOf: "of",
     reviewsKicker: "Google reviews", reviewsTitle: <>Words from<br />our guests.</>,
@@ -289,7 +293,7 @@ function showOtherReviewSelection() {
   reviewSelectionListeners.forEach((listener) => listener());
 }
 
-type OpeningStatus = { isOpen: boolean; nextTime?: string; phase?: "before" | "during" };
+type OpeningStatus = { isOpen: boolean; dayIndex: number; closingInMinutes?: number; nextTime?: string; phase?: "before" | "during" };
 
 const openingHours: Record<string, { opens: number; closes: number }> = {
   Mon: { opens: 7 * 60, closes: 17 * 60 },
@@ -306,22 +310,26 @@ function formatMinutes(minutes: number) {
   return `${hours}:${mins}`;
 }
 
-function getOpeningStatus(): OpeningStatus {
+function getOpeningStatus(now = new Date()): OpeningStatus {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/Bucharest",
     weekday: "short",
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
-  }).formatToParts(new Date());
+  }).formatToParts(now);
   const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  const dayIndex = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].indexOf(values.weekday);
   const hours = openingHours[values.weekday];
-  if (!hours) return { isOpen: false };
+  if (!hours) return { isOpen: false, dayIndex };
 
   const currentMinutes = Number(values.hour) * 60 + Number(values.minute);
-  if (currentMinutes < hours.opens) return { isOpen: false, phase: "before", nextTime: formatMinutes(hours.opens) };
-  if (currentMinutes < hours.closes) return { isOpen: true, phase: "during", nextTime: formatMinutes(hours.closes) };
-  return { isOpen: false };
+  if (currentMinutes < hours.opens) return { isOpen: false, dayIndex, phase: "before", nextTime: formatMinutes(hours.opens) };
+  if (currentMinutes < hours.closes) {
+    const remaining = hours.closes - currentMinutes;
+    return { isOpen: true, dayIndex, closingInMinutes: remaining <= 30 ? remaining : undefined, phase: "during", nextTime: formatMinutes(hours.closes) };
+  }
+  return { isOpen: false, dayIndex };
 }
 
 export default function Home() {
@@ -346,6 +354,7 @@ export default function Home() {
   const menuStartRef = useRef<HTMLDivElement>(null);
   const categoryScrollPending = useRef(false);
   const t = copy[language];
+  const openingLabel = !openingStatus ? t.checkingHours : openingStatus.closingInMinutes ? t.closingIn(openingStatus.closingInMinutes) : openingStatus.isOpen ? t.openNow : t.closedNow;
   const visibleGalleryImages = galleryExpanded ? galleryImages : galleryImages.slice(0, galleryPreviewCount);
   const isLightboxOpen = lightboxIndex !== null;
   const activeDetail = hoveredDetail ?? expandedDetail;
@@ -428,7 +437,13 @@ export default function Home() {
     const updateStatus = () => setOpeningStatus(getOpeningStatus());
     updateStatus();
     const interval = window.setInterval(updateStatus, 60_000);
-    return () => window.clearInterval(interval);
+    document.addEventListener("visibilitychange", updateStatus);
+    window.addEventListener("focus", updateStatus);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", updateStatus);
+      window.removeEventListener("focus", updateStatus);
+    };
   }, []);
 
   useEffect(() => {
@@ -550,7 +565,7 @@ export default function Home() {
         <button type="button" onClick={showOpeningHours} className={`desktop-opening-status ${openingStatus?.isOpen ? "is-open" : "is-closed"}`} aria-live="polite">
           <span className="desktop-status-dot" aria-hidden="true" />
           <span>
-            <strong>{openingStatus ? (openingStatus.isOpen ? t.openNow : t.closedNow) : t.checkingHours}</strong>
+            <strong>{openingLabel}</strong>
             {openingStatus?.nextTime && <small>{openingStatus.phase === "during" ? t.until : t.opensAt} {openingStatus.nextTime}</small>}
             <small className="hours-shortcut-label">{t.hoursLabel} ↗</small>
           </span>
@@ -623,7 +638,7 @@ export default function Home() {
           </div>
           <div ref={menuStartRef} className="menu-category-start" />
           <div className="menu-tabs" role="tablist" aria-label={t.menuKicker}>
-            {menuCategoryKeys.map((key) => <button type="button" id={`menu-tab-${key}`} key={key} role="tab" aria-selected={category === key} aria-controls="menu-panel" tabIndex={category === key ? 0 : -1} onClick={() => selectMenuCategory(key)} onKeyDown={(event) => handleMenuTabKeyDown(event, key)}>{t.categories[key]}</button>)}
+            {menuCategoryKeys.map((key) => <button type="button" id={`menu-tab-${key}`} key={key} role="tab" aria-label={`${t.categories[key]}, ${menuItems[key].length} ${t.productsLabel}`} aria-selected={category === key} aria-controls="menu-panel" tabIndex={category === key ? 0 : -1} onClick={() => selectMenuCategory(key)} onKeyDown={(event) => handleMenuTabKeyDown(event, key)}><span>{t.categories[key]}</span><span className="menu-category-count" aria-hidden="true">{menuItems[key].length}</span></button>)}
           </div>
           <div className="menu-list" id="menu-panel" key={category} role="tabpanel" aria-labelledby={`menu-tab-${category}`} tabIndex={0}>
             {menuItems[category].map((item, index) => {
@@ -660,7 +675,7 @@ export default function Home() {
           <div className="visit-copy"><div className="section-kicker light"><span>05</span>{t.visitKicker}</div><h2>{t.visitTitle}</h2>
             <div className="visit-details">
               <div className="address-block"><span>{t.addressLabel}</span><address>{t.address}</address><div className="address-actions"><a href={mapsUrl} target="_blank" rel="noreferrer">{t.directions} <span aria-hidden="true">↗</span></a><button type="button" className="address-copy" onClick={copyAddressToClipboard} aria-live="polite">{copyStatus === "copied" ? t.addressCopied : copyStatus === "failed" ? t.addressCopyFailed : t.copyAddress}</button></div></div>
-              <div className="hours-block" id="opening-hours" tabIndex={-1} role="region" aria-label={t.hoursLabel}><span>{t.hoursLabel}</span><dl>{t.hours.map(([day, time]) => <div key={day}><dt>{day}</dt><dd>{time}</dd></div>)}</dl></div>
+              <div className="hours-block" id="opening-hours" tabIndex={-1} role="region" aria-label={t.hoursLabel}><span>{t.hoursLabel}</span><dl>{t.hours.map(([day, time], index) => <div key={day} className={openingStatus?.dayIndex === index ? "is-today" : undefined}><dt>{day}{openingStatus?.dayIndex === index && <em className="today-label">{t.today}</em>}</dt><dd>{time}</dd></div>)}</dl></div>
             </div>
             <a className="instagram-link" href={instagramUrl} target="_blank" rel="noreferrer" aria-label={`${t.instagram}: @harborcafe.bucuresti`}><span>{t.instagram}</span><strong>@harborcafe.bucuresti</strong><span aria-hidden="true">↗</span></a>
           </div>
@@ -670,11 +685,12 @@ export default function Home() {
         <section className="gallery-section" id="gallery">
           <div className="section-kicker"><span>06</span>{t.galleryKicker}</div>
           <div className="gallery-heading"><h2>{t.galleryTitle}</h2><p>{t.galleryNote}</p></div>
-          <div className="gallery-grid" id="gallery-grid">{visibleGalleryImages.map((image, index) => <figure key={image.src} className={`gallery-item gallery-item-${index + 1}`}><button type="button" ref={index === galleryPreviewCount ? firstExtraPhotoRef : undefined} className="gallery-image-button" aria-label={`${t.viewPhoto}: ${t.galleryAlts[index]}`} aria-haspopup="dialog" onClick={() => setLightboxIndex(index)}><GalleryPicture image={image} sizes="(max-width: 760px) 91vw, 55vw" alt={t.galleryAlts[index]} /></button><figcaption><span>{String(index + 1).padStart(2, "0")}</span> Harbor Cafe</figcaption></figure>)}</div>
+          <div className="gallery-grid" id="gallery-grid">{visibleGalleryImages.map((image, index) => <figure key={image.src} className={`gallery-item gallery-item-${index + 1}`}><button type="button" ref={index === galleryPreviewCount ? firstExtraPhotoRef : undefined} className="gallery-image-button" aria-label={`${t.viewPhoto}: ${t.galleryAlts[index]}`} aria-haspopup="dialog" onClick={() => setLightboxIndex(index)}><GalleryPicture image={image} sizes="(max-width: 760px) 91vw, 55vw" alt={t.galleryAlts[index]} /></button><figcaption><span>{String(index + 1).padStart(2, "0")}</span> {t.galleryAlts[index]}</figcaption></figure>)}</div>
           <div className="gallery-footer">
             <p role="status">{visibleGalleryImages.length} {t.photoOf} {galleryImages.length} {t.photosLabel}</p>
             <button ref={galleryToggleRef} type="button" aria-controls="gallery-grid" aria-expanded={galleryExpanded} onClick={() => { galleryCollapsePending.current = galleryExpanded; setGalleryExpanded(!galleryExpanded); }}>{galleryExpanded ? t.showFewerPhotos : t.showAllPhotos}<span aria-hidden="true">{galleryExpanded ? "−" : "＋"}</span></button>
           </div>
+          <a className="gallery-back-menu" href="#menu" onClick={(event) => scrollToSection(event, "menu")}>{t.backToMenu}<span aria-hidden="true">↑</span></a>
         </section>
       </main>
 
@@ -684,7 +700,7 @@ export default function Home() {
         <button type="button" onClick={showOpeningHours} className={`opening-status ${openingStatus?.isOpen ? "is-open" : "is-closed"}`} aria-live="polite">
           <span className="status-dot" aria-hidden="true" />
           <span>
-            <strong>{openingStatus ? (openingStatus.isOpen ? t.openNow : t.closedNow) : t.checkingHours}</strong>
+            <strong>{openingLabel}</strong>
             {openingStatus?.nextTime && <small>{openingStatus.phase === "during" ? t.until : t.opensAt} {openingStatus.nextTime}</small>}
             <small className="hours-shortcut-label">{t.hoursLabel} ↗</small>
           </span>

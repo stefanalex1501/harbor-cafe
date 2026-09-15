@@ -209,7 +209,7 @@ h1 { margin: 0; max-width: 750px; font-size: clamp(4.2rem, 7.7vw, 8rem); letter-
 .gallery-item-2 img, .gallery-item-3 img, .gallery-item-6 img, .gallery-item-7 img, .gallery-item-9 img, .gallery-item-11 img, .gallery-item-15 img, .gallery-item-17 img { aspect-ratio: 4 / 5; }
 .gallery-item-19 img { aspect-ratio: 16 / 9; }
 .gallery-item { overflow: hidden; }
-.gallery-item figcaption { position: relative; z-index: 2; display: flex; justify-content: space-between; padding: .85rem 0 0; background: #f8f2e7; text-transform: uppercase; letter-spacing: .12em; font-size: .64rem; }
+.gallery-item figcaption { position: relative; z-index: 2; display: flex; justify-content: flex-start; gap: 1rem; padding: .85rem 0 0; background: #f8f2e7; letter-spacing: .02em; font-size: .875rem; line-height: 1.5; }
 .gallery-item figcaption span { color: var(--rust); }
 
 .reviews-section { position: relative; overflow: hidden; background: var(--ink); color: var(--cream); }
@@ -443,6 +443,14 @@ footer > p a { color: rgba(243,237,225,.72); }
   .opening-status small { color: rgba(243,237,225,.78); font-size: .75rem; }
   .mobile-quickbar > a { padding-inline: .6rem; font-size: .75rem; letter-spacing: .04em; }
 }
+
+.menu-tabs button { display: flex; align-items: center; justify-content: center; gap: .4rem; }
+.menu-category-count { flex-shrink: 0; min-width: 1.4rem; padding: .2rem .3rem; border: 1px solid currentColor; border-radius: 999px; font-size: .75rem; line-height: 1; letter-spacing: 0; opacity: .75; }
+.hours-block dl > .is-today { padding: .5rem; margin-inline: -.5rem; border-radius: .35rem; background: rgba(243,237,225,.16); box-shadow: inset 3px 0 var(--cream); font-weight: 700; }
+.hours-block .is-today dd { color: var(--cream); }
+.today-label { display: inline-block; margin-left: .45rem; font: 600 .75rem/1.4 ui-sans-serif, system-ui, sans-serif; }
+.gallery-back-menu { display: flex; width: fit-content; min-height: 48px; align-items: center; gap: 1rem; margin: 1.25rem auto 0; padding: .5rem .25rem; border-bottom: 1px solid var(--line); color: var(--ink); font-size: .875rem; }
+.gallery-back-menu:hover { border-color: var(--rust); color: var(--rust); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
