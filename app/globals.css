@@ -189,6 +189,8 @@ h1 { margin: 0; max-width: 750px; font-size: clamp(4.2rem, 7.7vw, 8rem); letter-
 .gallery-heading p { justify-self: end; max-width: 310px; margin: 0 0 .5rem; color: rgba(5,29,45,.6); font-size: .78rem; line-height: 1.7; text-align: right; }
 .gallery-grid { margin-top: clamp(4rem, 8vw, 8rem); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(1.2rem, 3vw, 3rem); align-items: start; }
 .gallery-item { margin: 0; }
+.gallery-item-added { animation: gallery-expand-in .7s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes gallery-expand-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 .gallery-image-button { display: block; width: 100%; padding: 0; border: 0; overflow: hidden; background: transparent; color: inherit; cursor: zoom-in; }
 .gallery-image-button picture, .story-image-wrap picture { display: block; width: 100%; }
 .story-image-wrap picture { height: 100%; }
@@ -517,6 +519,7 @@ footer > p a { color: rgba(243,237,225,.72); }
 @keyframes copy-confirm { from { transform: scale(.85); } to { transform: scale(1); } }
 
 @media (prefers-reduced-motion: reduce) {
+  .gallery-item-added { animation: none; }
   .reveal-pending { opacity: 1; translate: none; }
   .brand-intro { display: none; }
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }

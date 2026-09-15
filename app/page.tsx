@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
+import { animateScrollTo } from "./scroll-motion";
 
 type Language = "ro" | "en";
 type MenuCategory = "coffee" | "notCoffee" | "brunch" | "sweet";
@@ -347,6 +348,8 @@ export default function Home() {
   const [lightboxClosing, setLightboxClosing] = useState(false);
   const lightboxExitTimer = useRef<number | null>(null);
   const desktopNavigationRef = useRef<HTMLElement>(null);
+  const scrollTargetRef = useRef<SectionId | null>(null);
+  const cancelScrollRef = useRef<(() => void) | null>(null);
   const [galleryExpanded, setGalleryExpanded] = useState(false);
   const firstExtraPhotoRef = useRef<HTMLButtonElement>(null);
   const galleryToggleRef = useRef<HTMLButtonElement>(null);
@@ -367,6 +370,17 @@ export default function Home() {
   const visibleGalleryImages = galleryExpanded ? galleryImages : galleryImages.slice(0, galleryPreviewCount);
   const isLightboxOpen = lightboxIndex !== null;
   const activeDetail = hoveredDetail ?? expandedDetail;
+  const moveTo = useCallback((getDestination: () => number, section: SectionId) => {
+    cancelScrollRef.current?.();
+    scrollTargetRef.current = section;
+    setActiveSection(section);
+    cancelScrollRef.current = animateScrollTo(getDestination, () => {
+      scrollTargetRef.current = null;
+      // Reconcile the reading position after arrival or a manual interruption.
+      window.dispatchEvent(new Event("scroll"));
+    });
+  }, []);
+  useEffect(() => () => cancelScrollRef.current?.(), []);
   const refreshReviews = () => {
     // Ignore repeated clicks until the current transition has finished.
     if (reviewRefreshTimer.current !== null) return;
@@ -407,19 +421,24 @@ export default function Home() {
     };
   }, []);
   useEffect(() => {
-    if (galleryExpanded) firstExtraPhotoRef.current?.focus({ preventScroll: true });
-  }, [galleryExpanded]);
+    if (!galleryExpanded || !firstExtraPhotoRef.current) return;
+    const photo = firstExtraPhotoRef.current;
+    photo.focus({ preventScroll: true });
+    moveTo(() => window.scrollY + photo.getBoundingClientRect().top - 28, "gallery");
+  }, [galleryExpanded, moveTo]);
   useLayoutEffect(() => {
     if (galleryExpanded || !galleryCollapsePending.current) return;
     galleryCollapsePending.current = false;
     galleryToggleRef.current?.focus({ preventScroll: true });
-    galleryToggleRef.current?.scrollIntoView({ block: "center", behavior: "instant" });
-  }, [galleryExpanded]);
+    const toggle = galleryToggleRef.current;
+    if (toggle) moveTo(() => window.scrollY + toggle.getBoundingClientRect().top - window.innerHeight / 2 + toggle.offsetHeight / 2, "gallery");
+  }, [galleryExpanded, moveTo]);
   useLayoutEffect(() => {
     if (!categoryScrollPending.current || !menuStartRef.current) return;
     categoryScrollPending.current = false;
-    window.scrollTo({ top: window.scrollY + menuStartRef.current.getBoundingClientRect().top - 12, behavior: "instant" });
-  }, [displayedCategory]);
+    const menuStart = menuStartRef.current;
+    moveTo(() => window.scrollY + menuStart.getBoundingClientRect().top - 12, "menu");
+  }, [displayedCategory, moveTo]);
   const selectMenuCategory = (nextCategory: MenuCategory) => {
     if (nextCategory === category) return;
     setCategory(nextCategory);
@@ -507,8 +526,7 @@ export default function Home() {
     if (!hours) return;
     window.history.replaceState(null, "", "#opening-hours");
     hours.focus({ preventScroll: true });
-    hours.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
-    setActiveSection("visit");
+    moveTo(() => window.scrollY + hours.getBoundingClientRect().top - 24, "visit");
   };
   const storyDetails = [
     { title: t.detail1, body: t.detailBody1 },
@@ -519,17 +537,13 @@ export default function Home() {
   const sideNavItems: ReadonlyArray<readonly [SectionId, string]> = [["top", t.home], ...navItems];
   const changeLanguage = () => saveLanguage(language === "ro" ? "en" : "ro");
   const scrollToSection = (event: ReactMouseEvent<HTMLAnchorElement>, id: SectionId) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     const section = document.getElementById(id);
     if (!section) return;
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.history.replaceState(null, "", `#${id}`);
-    window.scrollTo({
-      top: id === "top" ? 0 : section.offsetTop,
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-    });
-    setActiveSection(id);
     setMenuOpen(false);
+    moveTo(() => id === "top" ? 0 : window.scrollY + section.getBoundingClientRect().top, id);
   };
   const showPreviousPhoto = () => setLightboxIndex((current) => current === null ? null : (current - 1 + galleryImages.length) % galleryImages.length);
   const showNextPhoto = () => setLightboxIndex((current) => current === null ? null : (current + 1) % galleryImages.length);
@@ -602,6 +616,8 @@ export default function Home() {
     const updateActiveSection = () => {
       window.cancelAnimationFrame(animationFrame);
       animationFrame = window.requestAnimationFrame(() => {
+        // A clicked destination owns the highlight until its scroll settles.
+        if (scrollTargetRef.current !== null) return;
         const readingLine = window.scrollY + window.innerHeight * .5;
         let currentSection: SectionId = "top";
         sectionIds.forEach((id) => {
@@ -640,6 +656,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!isLightboxOpen) return;
+    cancelScrollRef.current?.();
     const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -715,13 +732,13 @@ export default function Home() {
         <section className="hero" id="top">
           <div className="hero-copy">
             <p className="eyebrow">{t.eyebrow}</p><h1>{t.title}</h1><p className="intro">{t.intro}</p>
-            <a className="primary-action" href="#menu">{t.discover} <span aria-hidden="true">↗</span></a>
+            <a className="primary-action" href="#menu" onClick={(event) => scrollToSection(event, "menu")}>{t.discover} <span aria-hidden="true">↗</span></a>
           </div>
           <div className="hero-mark" aria-label="Logo Harbor Cafe">
             <img src={assetUrl("harbor-cafe-logo.png")} alt="Harbor Cafe" /><span className="orbit-copy" aria-hidden="true">COFFEE • SLOW MORNINGS • HARBOR • </span>
           </div>
           <div className="hero-note" aria-label={language === "ro" ? "Atmosfera Harbor Cafe" : "The Harbor Cafe mood"}><span>01</span><p>{t.heroNote}</p></div>
-          <a className="scroll-cue" href="#story" aria-label={t.story}><span />SCROLL</a>
+          <a className="scroll-cue" href="#story" aria-label={t.story} onClick={(event) => scrollToSection(event, "story")}><span />SCROLL</a>
         </section>
 
         <section className="manifesto"><p>{t.manifesto}</p><span>{t.manifestoSmall}</span></section>
@@ -822,7 +839,7 @@ export default function Home() {
         <section className="gallery-section" id="gallery">
           <div className="section-kicker"><span>06</span>{t.galleryKicker}</div>
           <div className="gallery-heading"><h2>{t.galleryTitle}</h2><p>{t.galleryNote}</p></div>
-          <div className="gallery-grid" id="gallery-grid">{visibleGalleryImages.map((image, index) => <figure key={image.src} className={`gallery-item gallery-item-${index + 1}`}><button type="button" ref={index === galleryPreviewCount ? firstExtraPhotoRef : undefined} className="gallery-image-button" aria-label={`${t.viewPhoto}: ${t.galleryAlts[index]}`} aria-haspopup="dialog" onClick={() => setLightboxIndex(index)}><GalleryPicture image={image} sizes="(max-width: 760px) 91vw, 55vw" alt={t.galleryAlts[index]} /></button><figcaption><span>{String(index + 1).padStart(2, "0")}</span> {t.galleryAlts[index]}</figcaption></figure>)}</div>
+          <div className="gallery-grid" id="gallery-grid">{visibleGalleryImages.map((image, index) => <figure key={image.src} className={`gallery-item gallery-item-${index + 1}${index >= galleryPreviewCount ? " gallery-item-added" : ""}`} style={index >= galleryPreviewCount ? { animationDelay: `${Math.min(index - galleryPreviewCount, 3) * 80}ms` } : undefined}><button type="button" ref={index === galleryPreviewCount ? firstExtraPhotoRef : undefined} className="gallery-image-button" aria-label={`${t.viewPhoto}: ${t.galleryAlts[index]}`} aria-haspopup="dialog" onClick={() => setLightboxIndex(index)}><GalleryPicture image={image} sizes="(max-width: 760px) 91vw, 55vw" alt={t.galleryAlts[index]} /></button><figcaption><span>{String(index + 1).padStart(2, "0")}</span> {t.galleryAlts[index]}</figcaption></figure>)}</div>
           <div className="gallery-footer">
             <p role="status">{visibleGalleryImages.length} {t.photoOf} {galleryImages.length} {t.photosLabel}</p>
             <button ref={galleryToggleRef} type="button" aria-controls="gallery-grid" aria-expanded={galleryExpanded} onClick={() => { galleryCollapsePending.current = galleryExpanded; setGalleryExpanded(!galleryExpanded); }}>{galleryExpanded ? t.showFewerPhotos : t.showAllPhotos}<span aria-hidden="true">{galleryExpanded ? "−" : "＋"}</span></button>
@@ -831,7 +848,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer><div className="footer-brand"><img src={assetUrl("harbor-cafe-logo.png")} alt="" /><div><strong>Harbor Cafe</strong><span>{t.footerLine}</span></div></div><a href="#top" className="back-top" aria-label={t.home}>↑</a><p><a href={instagramUrl} target="_blank" rel="noreferrer">Instagram</a> · {t.footerNote} · {new Date().getFullYear()}</p></footer>
+      <footer><div className="footer-brand"><img src={assetUrl("harbor-cafe-logo.png")} alt="" /><div><strong>Harbor Cafe</strong><span>{t.footerLine}</span></div></div><a href="#top" className="back-top" aria-label={t.home} onClick={(event) => scrollToSection(event, "top")}>↑</a><p><a href={instagramUrl} target="_blank" rel="noreferrer">Instagram</a> · {t.footerNote} · {new Date().getFullYear()}</p></footer>
 
       {!menuOpen && <aside className="mobile-quickbar" aria-label={language === "ro" ? "Acces rapid" : "Quick access"}>
         <button type="button" onClick={showOpeningHours} className={`opening-status ${openingStatus?.isOpen ? "is-open" : "is-closed"}`} aria-live="polite">
@@ -842,7 +859,7 @@ export default function Home() {
             <small className="hours-shortcut-label">{t.hoursLabel} ↗</small>
           </span>
         </button>
-        <a href="#menu">{t.quickMenu}</a>
+        <a href="#menu" onClick={(event) => scrollToSection(event, "menu")}>{t.quickMenu}</a>
         <a href={mapsUrl} target="_blank" rel="noreferrer">{t.quickMap} <span aria-hidden="true">↗</span></a>
       </aside>}
 
