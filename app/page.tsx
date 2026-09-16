@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { animateScrollTo } from "./scroll-motion";
+import { MobileSheet } from "./mobile-sheet";
 
 type Language = "ro" | "en";
 type MenuCategory = "coffee" | "notCoffee" | "brunch" | "sweet";
@@ -12,6 +13,7 @@ const copy = {
   ro: {
     skip: "Sari la conținut", home: "Acasă", story: "Poveste", menu: "Meniu", reviews: "Recenzii", gallery: "Galerie", visit: "Vizitează-ne",
     openMenu: "Deschide meniul de navigație", closeMenu: "Închide meniul de navigație", switchLanguage: "Switch language to English",
+    explore: "Explorează", chooseCategory: "Alege categoria", closePanel: "Închide panoul", changeCategory: "Schimbă categoria",
     eyebrow: "Slow coffee. Lumină naturală.", title: <>Un mic refugiu<br />în inima orașului.</>,
     intro: "Cafea de specialitate, Prosecco și acel sentiment că ai ajuns exact unde trebuie.", discover: "Descoperă meniul",
     heroNote: <>Dimineți tihnite.<br />Cafea făcută cu grijă.</>, manifesto: "Din prima ceașcă până la ultima poveste a zilei.",
@@ -30,7 +32,7 @@ const copy = {
     plantSurcharge: "+5 RON",
     foodTags: { milk: "Lapte", gluten: "Gluten", eggs: "Ouă", nuts: "Fructe cu coajă", alcoholFree: "Fără alcool", plantOption: "Lapte vegetal", plantIncluded: "Lapte vegetal inclus" },
     itemFoodInfo: "Informații orientative despre ingrediente",
-    categories: { coffee: "Cafea caldă", notCoffee: "Rece & bar", brunch: "Ciabatta", sweet: "Deserturi" },
+    categories: { coffee: "Cafea", notCoffee: "Rece & bar", brunch: "Ciabatta", sweet: "Deserturi" },
     galleryKicker: "Galerie", galleryTitle: <>Texturi, lumină<br />și cafea bună.</>,
     galleryNote: "O privire în atmosfera Harbor Cafe — lumină caldă, cafea pregătită cu grijă și ceva bun alături.",
     showAllPhotos: "Vezi toate fotografiile", showFewerPhotos: "Arată mai puține", photosLabel: "fotografii",
@@ -50,6 +52,7 @@ const copy = {
   en: {
     skip: "Skip to content", home: "Home", story: "Story", menu: "Menu", reviews: "Reviews", gallery: "Gallery", visit: "Visit us",
     openMenu: "Open navigation menu", closeMenu: "Close navigation menu", switchLanguage: "Schimbă limba în română",
+    explore: "Explore", chooseCategory: "Choose a category", closePanel: "Close panel", changeCategory: "Change category",
     eyebrow: "Slow coffee. Natural light.", title: <>A little refuge<br />in the heart of the city.</>,
     intro: "Specialty coffee, Prosecco, and that feeling of arriving exactly where you need to be.", discover: "Explore the menu",
     heroNote: <>Slow mornings.<br />Coffee made with care.</>, manifesto: "From the first cup to the last story of the day.",
@@ -340,7 +343,11 @@ export default function Home() {
   const [displayedCategory, setDisplayedCategory] = useState<MenuCategory>("coffee");
   const [menuLeaving, setMenuLeaving] = useState(false);
   const menuTransitionTimer = useRef<number | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileSheet, setMobileSheet] = useState<"explore" | "categories" | null>(null);
+  const [compactMenu, setCompactMenu] = useState(false);
+  const menuTabsRef = useRef<HTMLDivElement>(null);
+  const compactCategoryRef = useRef<HTMLButtonElement>(null);
+  const menuFromCompactRef = useRef(false);
   const [expandedDetail, setExpandedDetail] = useState<number | null>(null);
   const [hoveredDetail, setHoveredDetail] = useState<number | null>(null);
   const [activeSection, setActiveSection] = useState<SectionId>("top");
@@ -370,6 +377,11 @@ export default function Home() {
   const visibleGalleryImages = galleryExpanded ? galleryImages : galleryImages.slice(0, galleryPreviewCount);
   const isLightboxOpen = lightboxIndex !== null;
   const activeDetail = hoveredDetail ?? expandedDetail;
+  const closeMobileSheet = useCallback(() => setMobileSheet(null), []);
+  const openMobileSheet = (sheet: "explore" | "categories") => {
+    cancelScrollRef.current?.();
+    setMobileSheet(sheet);
+  };
   const moveTo = useCallback((getDestination: () => number, section: SectionId) => {
     cancelScrollRef.current?.();
     scrollTargetRef.current = section;
@@ -436,11 +448,23 @@ export default function Home() {
   useLayoutEffect(() => {
     if (!categoryScrollPending.current || !menuStartRef.current) return;
     categoryScrollPending.current = false;
+    if (window.matchMedia("(max-width: 760px)").matches) {
+      // No page journey when choosing products. A compact selection starts the
+      // new list directly below its control, even after a long category.
+      if (menuFromCompactRef.current && menuTabsRef.current) {
+        // Measure the stable tabs, not the list's animated entrance transform.
+        const controlHeight = compactCategoryRef.current?.parentElement?.offsetHeight ?? 64;
+        window.scrollTo({ top: window.scrollY + menuTabsRef.current.getBoundingClientRect().bottom - controlHeight, behavior: "instant" });
+      }
+      menuFromCompactRef.current = false;
+      return;
+    }
     const menuStart = menuStartRef.current;
     moveTo(() => window.scrollY + menuStart.getBoundingClientRect().top - 12, "menu");
   }, [displayedCategory, moveTo]);
-  const selectMenuCategory = (nextCategory: MenuCategory) => {
+  const selectMenuCategory = (nextCategory: MenuCategory, fromCompact = false) => {
     if (nextCategory === category) return;
+    menuFromCompactRef.current = fromCompact;
     setCategory(nextCategory);
     if (menuTransitionTimer.current !== null) window.clearTimeout(menuTransitionTimer.current);
     const swap = () => {
@@ -542,7 +566,6 @@ export default function Home() {
     const section = document.getElementById(id);
     if (!section) return;
     window.history.replaceState(null, "", `#${id}`);
-    setMenuOpen(false);
     moveTo(() => id === "top" ? 0 : window.scrollY + section.getBoundingClientRect().top, id);
   };
   const showPreviousPhoto = () => setLightboxIndex((current) => current === null ? null : (current - 1 + galleryImages.length) % galleryImages.length);
@@ -639,20 +662,30 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!menuOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
+    let frame = 0;
+    const update = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        const tabs = menuTabsRef.current;
+        const section = document.getElementById("menu");
+        const controlHeight = compactCategoryRef.current?.parentElement?.offsetHeight ?? 64;
+        const compact = window.innerWidth <= 760 && !!tabs && !!section && tabs.getBoundingClientRect().bottom <= controlHeight + 1 && section.getBoundingClientRect().bottom > 180;
+        setCompactMenu((previous) => previous === compact ? previous : compact);
+      });
     };
-
-    window.addEventListener("keydown", handleKeyDown);
+    update();
+    const resize = new ResizeObserver(update);
+    const section = document.getElementById("menu");
+    if (section) resize.observe(section);
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousOverflow;
+      window.cancelAnimationFrame(frame);
+      resize.disconnect();
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
     };
-  }, [menuOpen]);
+  }, []);
 
   useEffect(() => {
     if (!isLightboxOpen) return;
@@ -699,14 +732,13 @@ export default function Home() {
         </div>
       </div>}
       <a className="skip-link" href="#content">{t.skip}</a>
-      <header className={`site-header ${menuOpen ? "is-open" : ""}`}>
+      <header className="site-header">
         <a className="wordmark" href="#top" aria-label={`Harbor Cafe — ${t.home}`} onClick={(event) => scrollToSection(event, "top")}>Harbor Cafe</a>
         <nav aria-label={language === "ro" ? "Navigație principală" : "Main navigation"}>
           {navItems.map(([id, label]) => <a key={id} href={`#${id}`} onClick={(event) => scrollToSection(event, id)}>{label}</a>)}
         </nav>
         <div className="header-actions">
           <button className="language" type="button" onClick={changeLanguage} aria-label={t.switchLanguage}>{language === "ro" ? "EN" : "RO"}</button>
-          <button className="menu-toggle" type="button" aria-expanded={menuOpen} aria-label={menuOpen ? t.closeMenu : t.openMenu} onClick={() => setMenuOpen((open) => !open)}><span /><span /></button>
         </div>
       </header>
 
@@ -791,13 +823,14 @@ export default function Home() {
             </div>
           </div>
           <div ref={menuStartRef} className="menu-category-start" />
-          <div className="menu-tabs" role="tablist" aria-label={t.menuKicker}>
+          <div ref={menuTabsRef} className="menu-tabs" role="tablist" aria-label={t.menuKicker}>
             {menuCategoryKeys.map((key) => <button type="button" id={`menu-tab-${key}`} key={key} role="tab" aria-label={`${t.categories[key]}, ${menuItems[key].length} ${t.productsLabel}`} aria-selected={category === key} aria-controls="menu-panel" tabIndex={category === key ? 0 : -1} onClick={() => selectMenuCategory(key)} onKeyDown={(event) => handleMenuTabKeyDown(event, key)}><span>{t.categories[key]}</span><span className="menu-category-count" aria-hidden="true">{menuItems[key].length}</span></button>)}
           </div>
+          <div className={`mobile-category-bar ${compactMenu ? "is-visible" : ""}`} inert={!compactMenu} aria-hidden={!compactMenu}><button ref={compactCategoryRef} type="button" aria-haspopup="dialog" aria-expanded={mobileSheet === "categories"} onClick={() => openMobileSheet("categories")}><span><small>{t.menuKicker}</small><strong>{t.categories[category]}</strong></span><span className="category-change-label">{t.changeCategory}</span><span aria-hidden="true">⌄</span></button></div>
           <div className={`menu-list ${menuLeaving ? "is-leaving" : ""}`} id="menu-panel" key={displayedCategory} role="tabpanel" aria-busy={menuLeaving} aria-labelledby={`menu-tab-${displayedCategory}`} tabIndex={0}>
             {menuItems[displayedCategory].map((item, index) => {
               const foodTags = getFoodTags(displayedCategory, item.ro);
-              return <article className="menu-item" key={item.ro}><span className="item-number">{String(index + 1).padStart(2, "0")}</span><div><h3>{item[language]}</h3><p>{language === "ro" ? item.noteRo : item.noteEn}</p>{foodTags.length > 0 && <ul className="item-tags" aria-label={t.itemFoodInfo}>{foodTags.map((tag) => <li className={tag === "plantOption" ? "surcharge-tag" : undefined} key={tag}><span>{t.foodTags[tag]}</span>{tag === "plantOption" && <strong>{t.plantSurcharge}</strong>}</li>)}</ul>}</div><span className="item-price">{`${item.price.replace(/ lei$/, "")} RON`}</span></article>;
+              return <article className={`menu-item ${item[language].length > 23 ? "has-long-name" : ""}`} key={item.ro}><span className="item-number">{String(index + 1).padStart(2, "0")}</span><div className="menu-item-details"><h3>{item[language]}</h3><p>{language === "ro" ? item.noteRo : item.noteEn}</p>{foodTags.length > 0 && <ul className="item-tags" aria-label={t.itemFoodInfo}>{foodTags.map((tag) => <li className={tag === "plantOption" ? "surcharge-tag" : undefined} key={tag}><span>{t.foodTags[tag]}</span>{tag === "plantOption" && <strong>{t.plantSurcharge}</strong>}</li>)}</ul>}</div><span className="item-price">{`${item.price.replace(/ lei$/, "")} RON`}</span></article>;
             })}
           </div>
         </section>
@@ -850,18 +883,16 @@ export default function Home() {
 
       <footer><div className="footer-brand"><img src={assetUrl("harbor-cafe-logo.png")} alt="" /><div><strong>Harbor Cafe</strong><span>{t.footerLine}</span></div></div><a href="#top" className="back-top" aria-label={t.home} onClick={(event) => scrollToSection(event, "top")}>↑</a><p><a href={instagramUrl} target="_blank" rel="noreferrer">Instagram</a> · {t.footerNote} · {new Date().getFullYear()}</p></footer>
 
-      {!menuOpen && <aside className="mobile-quickbar" aria-label={language === "ro" ? "Acces rapid" : "Quick access"}>
-        <button type="button" onClick={showOpeningHours} className={`opening-status ${openingStatus?.isOpen ? "is-open" : "is-closed"}`} aria-live="polite">
-          <span className="status-dot" aria-hidden="true" />
-          <span>
-            <strong>{openingLabel}</strong>
-            {openingStatus?.nextTime && <small>{openingStatus.phase === "during" ? t.until : t.opensAt} {openingStatus.nextTime}</small>}
-            <small className="hours-shortcut-label">{t.hoursLabel} ↗</small>
-          </span>
-        </button>
-        <a href="#menu" onClick={(event) => scrollToSection(event, "menu")}>{t.quickMenu}</a>
-        <a href={mapsUrl} target="_blank" rel="noreferrer">{t.quickMap} <span aria-hidden="true">↗</span></a>
-      </aside>}
+      <nav className="mobile-quickbar" aria-label={language === "ro" ? "Navigație mobilă" : "Mobile navigation"}>
+        <a href="#menu" aria-current={activeSection === "menu" ? "location" : undefined} onClick={(event) => scrollToSection(event, "menu")}><strong>{t.quickMenu}</strong></a>
+        <a className="mobile-map-action" href={mapsUrl} target="_blank" rel="noreferrer"><strong>{t.quickMap} <span aria-hidden="true">↗</span></strong><small className={openingStatus?.isOpen ? "is-open" : "is-closed"}>{openingStatus ? openingStatus.isOpen ? t.openNow : t.closedNow : "—"}</small></a>
+        <button type="button" aria-haspopup="dialog" aria-expanded={mobileSheet === "explore"} onClick={() => openMobileSheet("explore")}><strong>{t.explore}</strong><span className="explore-symbol" aria-hidden="true"><i /><i /></span></button>
+      </nav>
+
+      {mobileSheet && <MobileSheet title={mobileSheet === "explore" ? t.explore : t.chooseCategory} closeLabel={t.closePanel} onClose={closeMobileSheet}>{(dismiss) => mobileSheet === "explore" ? <>
+        <nav className="mobile-sheet-links" aria-label={t.explore}>{([["story", t.story], ["reviews", t.reviews], ["gallery", t.gallery], ["visit", t.visit]] as const).map(([id, label], index) => <a key={id} href={`#${id}`} aria-current={activeSection === id ? "location" : undefined} style={{ animationDelay: `${index * 55 + 70}ms` }} onClick={(event) => { if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return; event.preventDefault(); dismiss(() => { const section = document.getElementById(id); if (section) { window.history.replaceState(null, "", `#${id}`); moveTo(() => window.scrollY + section.getBoundingClientRect().top, id); } }); }}><span>{String(index + 1).padStart(2, "0")}</span><strong>{label}</strong><span aria-hidden="true">↗</span></a>)}</nav>
+        <button className="mobile-sheet-hours" type="button" onClick={() => dismiss(showOpeningHours)}><span><strong>{openingLabel}</strong>{openingStatus?.nextTime && <small>{openingStatus.phase === "during" ? t.until : t.opensAt} {openingStatus.nextTime}</small>}</span><span>{t.hoursLabel} ↗</span></button>
+      </> : <div className="mobile-sheet-categories">{menuCategoryKeys.map((key, index) => <button type="button" key={key} aria-pressed={category === key} style={{ animationDelay: `${index * 55 + 70}ms` }} onClick={() => dismiss(() => selectMenuCategory(key, true))}><span><strong>{t.categories[key]}</strong><small>{menuItems[key].length} {t.productsLabel}</small></span><span aria-hidden="true">{category === key ? "✓" : "↗"}</span></button>)}</div>}</MobileSheet>}
 
       {lightboxIndex !== null && <div className={`lightbox ${lightboxClosing ? "is-closing" : ""}`} role="dialog" aria-modal="true" aria-label={t.lightboxLabel}>
         <button ref={lightboxCloseRef} type="button" className="lightbox-close" aria-label={t.closeGallery} onClick={closeLightbox}>×</button>
