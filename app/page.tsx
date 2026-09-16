@@ -71,7 +71,7 @@ const copy = {
     plantSurcharge: "+5 RON",
     foodTags: { milk: "Milk", gluten: "Gluten", eggs: "Eggs", nuts: "Tree nuts", alcoholFree: "Alcohol-free", plantOption: "Plant milk", plantIncluded: "Plant milk included" },
     itemFoodInfo: "Indicative ingredient information",
-    categories: { coffee: "Hot coffee", notCoffee: "Cold & bar", brunch: "Ciabatta", sweet: "Sweets" },
+    categories: { coffee: "Coffee", notCoffee: "Cold & bar", brunch: "Ciabatta", sweet: "Sweets" },
     galleryKicker: "Gallery", galleryTitle: <>Texture, light<br />and good coffee.</>,
     galleryNote: "A glimpse into Harbor Cafe — warm light, carefully made coffee, and something good on the side.",
     showAllPhotos: "View all photos", showFewerPhotos: "Show fewer photos", photosLabel: "photos",

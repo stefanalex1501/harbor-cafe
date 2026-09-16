@@ -231,10 +231,10 @@ h1 { margin: 0; max-width: 750px; font-size: clamp(4.2rem, 7.7vw, 8rem); letter-
 .reviews-heading p { margin: 1.5rem 0 1.25rem; color: rgba(243,237,225,.62); font-size: .86rem; line-height: 1.75; }
 .reviews-heading .reviews-update-note { margin: .85rem 0 0; font-size: .8125rem; line-height: 1.6; color: rgba(243,237,225,.72); }
 .reviews-update-note span { display: block; }
-.reviews-score { width: fit-content; display: grid; grid-template-columns: auto auto; align-items: baseline; gap: .25rem 1rem; }
-.reviews-score strong { font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 400; letter-spacing: -.035em; }
+.reviews-score { width: fit-content; max-width: 100%; display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem 1rem; }
+.reviews-score strong { white-space: nowrap; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 400; letter-spacing: -.035em; }
 .reviews-score > span { color: #e0b39a; font-size: .72rem; letter-spacing: .15em; }
-.reviews-score small { grid-column: 1 / -1; color: rgba(243,237,225,.52); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; }
+.reviews-score small { flex-basis: 100%; color: rgba(243,237,225,.52); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; }
 .reviews-google-link { min-height: 44px; padding: .35rem 0; border-bottom: 1px solid #d3a389; display: inline-flex; align-items: center; gap: 1.2rem; text-transform: uppercase; letter-spacing: .11em; font-size: .65rem; font-weight: 700; }
 .reviews-google-link span { transition: transform .25s ease; }
 .reviews-google-link:hover span { transform: translate(3px, -3px); }
