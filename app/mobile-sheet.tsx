@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 type DismissSheet = (afterClose?: () => void) => void;
 
@@ -30,14 +30,19 @@ export function MobileSheet({ title, closeLabel, onClose, children }: {
     timerRef.current = window.setTimeout(finish, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 260);
   }, [onClose]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    // Native dialog autofocus must run at the final layout position. Focusing
+    // a translated panel can scroll the dialog itself, notably on iOS Safari.
+    delete dialog.dataset.sheetReady;
     dialog.showModal();
     closeRef.current?.focus({ preventScroll: true });
+    dialog.scrollTop = 0;
+    dialog.dataset.sheetReady = "true";
     const desktop = window.matchMedia("(min-width: 761px)");
     const onResize = () => { if (desktop.matches) onClose(); };
     desktop.addEventListener("change", onResize);
@@ -45,6 +50,7 @@ export function MobileSheet({ title, closeLabel, onClose, children }: {
       if (timerRef.current !== null) window.clearTimeout(timerRef.current);
       desktop.removeEventListener("change", onResize);
       dialog.close();
+      delete dialog.dataset.sheetReady;
       document.body.style.overflow = overflow;
       if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
     };
