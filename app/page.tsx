@@ -407,8 +407,8 @@ export default function Home() {
       reviewRefreshTimer.current = window.setTimeout(() => {
         setReviewPhase("idle");
         reviewRefreshTimer.current = null;
-      }, 600);
-    }, 200);
+      }, 320);
+    }, 180);
   };
   useEffect(() => () => {
     if (reviewRefreshTimer.current !== null) window.clearTimeout(reviewRefreshTimer.current);
@@ -416,7 +416,7 @@ export default function Home() {
   useEffect(() => {
     const dismiss = () => setShowBrandIntro(false);
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const timeout = window.setTimeout(dismiss, reducedMotion.matches ? 0 : 1500);
+    const timeout = window.setTimeout(dismiss, reducedMotion.matches ? 0 : 850);
     // Keep the entrance decorative: any interaction immediately reveals the page.
     window.addEventListener("pointerdown", dismiss, { once: true });
     window.addEventListener("keydown", dismiss, { once: true });
@@ -476,7 +476,7 @@ export default function Home() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) swap();
     else {
       setMenuLeaving(true);
-      menuTransitionTimer.current = window.setTimeout(swap, 160);
+      menuTransitionTimer.current = window.setTimeout(swap, 120);
     }
   };
   const closeLightbox = useCallback(() => {
@@ -490,7 +490,7 @@ export default function Home() {
       setLightboxIndex(null);
       setLightboxClosing(false);
       lightboxExitTimer.current = null;
-    }, 220);
+    }, 180);
   }, []);
   useEffect(() => () => {
     if (menuTransitionTimer.current !== null) window.clearTimeout(menuTransitionTimer.current);
@@ -519,7 +519,8 @@ export default function Home() {
   useEffect(() => {
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (motion.matches || !("IntersectionObserver" in window)) return;
-    const targets = document.querySelectorAll<HTMLElement>(".section-kicker, .story-heading, .story-copy, .menu-heading, .reviews-heading, .visit-copy > h2, .gallery-heading");
+    // Reveal text individually so long sections don't animate as one large block.
+    const targets = document.querySelectorAll<HTMLElement>(".section-kicker, .story-heading h2, .story-copy > p, .menu-heading h2, .menu-heading > p, .reviews-heading > h2, .reviews-heading > div > p, .visit-copy > h2, .gallery-heading > h2, .gallery-heading > p");
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
@@ -527,7 +528,7 @@ export default function Home() {
         entry.target.classList.add("reveal-arriving");
         observer.unobserve(entry.target);
       });
-    }, { threshold: 0.08 });
+    }, { threshold: 0.12, rootMargin: "0px 0px -48px 0px" });
     targets.forEach((target) => {
       if (target.getBoundingClientRect().top < window.innerHeight) return;
       target.classList.add("reveal-pending");
@@ -872,7 +873,7 @@ export default function Home() {
         <section className="gallery-section" id="gallery">
           <div className="section-kicker"><span>06</span>{t.galleryKicker}</div>
           <div className="gallery-heading"><h2>{t.galleryTitle}</h2><p>{t.galleryNote}</p></div>
-          <div className="gallery-grid" id="gallery-grid">{visibleGalleryImages.map((image, index) => <figure key={image.src} className={`gallery-item gallery-item-${index + 1}${index >= galleryPreviewCount ? " gallery-item-added" : ""}`} style={index >= galleryPreviewCount ? { animationDelay: `${Math.min(index - galleryPreviewCount, 3) * 80}ms` } : undefined}><button type="button" ref={index === galleryPreviewCount ? firstExtraPhotoRef : undefined} className="gallery-image-button" aria-label={`${t.viewPhoto}: ${t.galleryAlts[index]}`} aria-haspopup="dialog" onClick={() => setLightboxIndex(index)}><GalleryPicture image={image} sizes="(max-width: 760px) 91vw, 55vw" alt={t.galleryAlts[index]} /></button><figcaption><span>{String(index + 1).padStart(2, "0")}</span> {t.galleryAlts[index]}</figcaption></figure>)}</div>
+          <div className="gallery-grid" id="gallery-grid">{visibleGalleryImages.map((image, index) => <figure key={image.src} className={`gallery-item gallery-item-${index + 1}${index >= galleryPreviewCount ? " gallery-item-added" : ""}`} style={index >= galleryPreviewCount ? { animationDelay: `${Math.min(index - galleryPreviewCount, 3) * 40}ms` } : undefined}><button type="button" ref={index === galleryPreviewCount ? firstExtraPhotoRef : undefined} className="gallery-image-button" aria-label={`${t.viewPhoto}: ${t.galleryAlts[index]}`} aria-haspopup="dialog" onClick={() => setLightboxIndex(index)}><GalleryPicture image={image} sizes="(max-width: 760px) 91vw, 55vw" alt={t.galleryAlts[index]} /></button><figcaption><span>{String(index + 1).padStart(2, "0")}</span> {t.galleryAlts[index]}</figcaption></figure>)}</div>
           <div className="gallery-footer">
             <p role="status">{visibleGalleryImages.length} {t.photoOf} {galleryImages.length} {t.photosLabel}</p>
             <button ref={galleryToggleRef} type="button" aria-controls="gallery-grid" aria-expanded={galleryExpanded} onClick={() => { galleryCollapsePending.current = galleryExpanded; setGalleryExpanded(!galleryExpanded); }}>{galleryExpanded ? t.showFewerPhotos : t.showAllPhotos}<span aria-hidden="true">{galleryExpanded ? "−" : "＋"}</span></button>
@@ -890,9 +891,9 @@ export default function Home() {
       </nav>
 
       {mobileSheet && <MobileSheet title={mobileSheet === "explore" ? t.explore : t.chooseCategory} closeLabel={t.closePanel} onClose={closeMobileSheet}>{(dismiss) => mobileSheet === "explore" ? <>
-        <nav className="mobile-sheet-links" aria-label={t.explore}>{([["story", t.story], ["reviews", t.reviews], ["gallery", t.gallery], ["visit", t.visit]] as const).map(([id, label], index) => <a key={id} href={`#${id}`} aria-current={activeSection === id ? "location" : undefined} style={{ animationDelay: `${index * 55 + 70}ms` }} onClick={(event) => { if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return; event.preventDefault(); dismiss(() => { const section = document.getElementById(id); if (section) { window.history.replaceState(null, "", `#${id}`); moveTo(() => window.scrollY + section.getBoundingClientRect().top, id); } }); }}><span>{String(index + 1).padStart(2, "0")}</span><strong>{label}</strong><span aria-hidden="true">↗</span></a>)}</nav>
+        <nav className="mobile-sheet-links" aria-label={t.explore}>{([["story", t.story], ["reviews", t.reviews], ["gallery", t.gallery], ["visit", t.visit]] as const).map(([id, label], index) => <a key={id} href={`#${id}`} aria-current={activeSection === id ? "location" : undefined} onClick={(event) => { if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return; event.preventDefault(); dismiss(() => { const section = document.getElementById(id); if (section) { window.history.replaceState(null, "", `#${id}`); moveTo(() => window.scrollY + section.getBoundingClientRect().top, id); } }); }}><span>{String(index + 1).padStart(2, "0")}</span><strong>{label}</strong><span aria-hidden="true">↗</span></a>)}</nav>
         <button className="mobile-sheet-hours" type="button" onClick={() => dismiss(showOpeningHours)}><span><strong>{openingLabel}</strong>{openingStatus?.nextTime && <small>{openingStatus.phase === "during" ? t.until : t.opensAt} {openingStatus.nextTime}</small>}</span><span>{t.hoursLabel} ↗</span></button>
-      </> : <div className="mobile-sheet-categories">{menuCategoryKeys.map((key, index) => <button type="button" key={key} aria-pressed={category === key} style={{ animationDelay: `${index * 55 + 70}ms` }} onClick={() => dismiss(() => selectMenuCategory(key, true))}><span><strong>{t.categories[key]}</strong><small>{menuItems[key].length} {t.productsLabel}</small></span><span aria-hidden="true">{category === key ? "✓" : "↗"}</span></button>)}</div>}</MobileSheet>}
+      </> : <div className="mobile-sheet-categories">{menuCategoryKeys.map((key) => <button type="button" key={key} aria-pressed={category === key} onClick={() => dismiss(() => selectMenuCategory(key, true))}><span><strong>{t.categories[key]}</strong><small>{menuItems[key].length} {t.productsLabel}</small></span><span aria-hidden="true">{category === key ? "✓" : "↗"}</span></button>)}</div>}</MobileSheet>}
 
       {lightboxIndex !== null && <div className={`lightbox ${lightboxClosing ? "is-closing" : ""}`} role="dialog" aria-modal="true" aria-label={t.lightboxLabel}>
         <button ref={lightboxCloseRef} type="button" className="lightbox-close" aria-label={t.closeGallery} onClick={closeLightbox}>×</button>

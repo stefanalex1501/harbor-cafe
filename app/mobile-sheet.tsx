@@ -27,7 +27,7 @@ export function MobileSheet({ title, closeLabel, onClose, children }: {
       // Let the body unlock before starting a section transition.
       if (afterClose) window.requestAnimationFrame(afterClose);
     };
-    timerRef.current = window.setTimeout(finish, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 260);
+    timerRef.current = window.setTimeout(finish, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 200);
   }, [onClose]);
 
   useLayoutEffect(() => {

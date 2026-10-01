@@ -28,7 +28,7 @@ export function animateScrollTo(getDestination: () => number, onSettled: () => v
     return cancel;
   }
   // Short trips remain gentle; long journeys never become a drawn-out wait.
-  const duration = Math.min(1900, 650 + Math.sqrt(distance) * 12);
+  const duration = Math.min(1100, 420 + Math.sqrt(distance) * 9);
   const startedAt = performance.now();
   const step = (now: number) => {
     if (finished) return;
