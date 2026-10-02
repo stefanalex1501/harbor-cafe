@@ -662,6 +662,7 @@ export default function Home() {
   useEffect(() => {
     let animationFrame = 0;
     const updateActiveSection = () => {
+      if (scrollTargetRef.current !== null) return;
       window.cancelAnimationFrame(animationFrame);
       animationFrame = window.requestAnimationFrame(() => {
         // A clicked destination owns the highlight until its scroll settles.
@@ -689,6 +690,13 @@ export default function Home() {
   useEffect(() => {
     let frame = 0;
     const update = () => {
+      // The compact product selector is mobile-only. Don't measure layout on
+      // every desktop scroll event (especially during long section journeys).
+      if (window.innerWidth > 760) {
+        window.cancelAnimationFrame(frame);
+        setCompactMenu((previous) => previous ? false : previous);
+        return;
+      }
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
         const tabs = menuTabsRef.current;
