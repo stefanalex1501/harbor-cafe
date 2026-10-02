@@ -173,6 +173,7 @@ h1 { margin: 0; max-width: 750px; font-size: clamp(4.2rem, 7.7vw, 8rem); letter-
 .item-number { color: #d3a389; font-size: .68rem; font-weight: 650; }
 .menu-item h3 { margin: 0 0 .35rem; font-family: Georgia, "Times New Roman", serif; font-weight: 400; font-size: clamp(1.35rem, 2vw, 2rem); }
 .menu-item p { margin: 0; color: rgba(243,237,225,.68); font-size: .9rem; line-height: 1.5; }
+.menu-item .menu-item-description { max-width: 38rem; margin-top: .45rem; color: rgba(243,237,225,.82); font-size: .9375rem; line-height: 1.6; }
 .item-tags { margin: .7rem 0 0; display: flex; flex-wrap: wrap; gap: .35rem; }
 .item-tags li { padding: .38rem .55rem; color: rgba(243,237,225,.62); font-size: .52rem; }
 .item-tags .surcharge-tag { padding: .2rem .22rem .2rem .55rem; }
@@ -570,11 +571,15 @@ footer > p a { color: rgba(243,237,225,.72); }
   .menu-item h3 { grid-column: 1; grid-row: 1; margin: 0; font-size: 1.4rem; line-height: 1.25; overflow-wrap: anywhere; }
   .menu-item .item-price { grid-column: 2; grid-row: 1; margin: 0; font-size: 1.125rem; }
   .menu-item p { grid-column: 1 / -1; grid-row: 2; margin: 0; font-size: .9375rem; }
+  .menu-item .menu-item-description { grid-row: 3; margin-top: .2rem; }
   .menu-item .item-tags { grid-column: 1 / -1; grid-row: 3; margin: .3rem 0 0; }
+  .menu-item.has-description .item-tags { grid-row: 4; }
   .menu-item.has-long-name h3 { grid-column: 1 / -1; }
   .menu-item.has-long-name .item-price { grid-column: 1 / -1; grid-row: 2; }
   .menu-item.has-long-name p { grid-row: 3; }
+  .menu-item.has-long-name .menu-item-description { grid-row: 4; }
   .menu-item.has-long-name .item-tags { grid-row: 4; }
+  .menu-item.has-long-name.has-description .item-tags { grid-row: 5; }
   .mobile-quickbar { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .25rem; padding: .4rem max(3vw, env(safe-area-inset-left)) calc(.4rem + env(safe-area-inset-bottom)) max(3vw, env(safe-area-inset-right)); min-height: 72px; }
   .mobile-quickbar > a, .mobile-quickbar > button { min-width: 0; min-height: 56px; padding: .3rem; border: 0; border-radius: 9px; background: transparent; color: var(--cream); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: .25rem; text-transform: none; letter-spacing: 0; font: inherit; cursor: pointer; }
   .mobile-quickbar > a[aria-current="location"] { background: var(--cream); color: var(--ink); }

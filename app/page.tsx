@@ -145,6 +145,30 @@ const menuItems = {
   ],
 } as const;
 
+type MenuItemName = (typeof menuItems)[MenuCategory][number]["ro"];
+
+const menuDescriptions: Partial<Record<MenuItemName, Record<Language, string>>> = {
+  Espresso: { ro: "Scurt, intens și concentrat.", en: "Short, intense and concentrated." },
+  "Long Black": { ro: "Espresso peste apă caldă, cu un gust mai lejer.", en: "Espresso poured over hot water for a lighter cup." },
+  Americano: { ro: "Espresso diluat cu apă caldă, pentru o cafea savurată pe îndelete.", en: "Espresso diluted with hot water, made to be enjoyed slowly." },
+  Cortado: { ro: "Espresso cu puțin lapte fin texturat — cafeaua rămâne în prim-plan.", en: "Espresso with a little finely textured milk — the coffee takes centre stage." },
+  Cappuccino: { ro: "Un echilibru între espresso, lapte și spumă catifelată.", en: "A balance of espresso, milk and velvety foam." },
+  "Flat White": { ro: "Espresso cu lapte fin texturat, pentru un gust pronunțat de cafea.", en: "Espresso with finely textured milk for a distinct coffee flavour." },
+  Latte: { ro: "Espresso cu mai mult lapte, delicat și cremos.", en: "Espresso with more milk, mellow and creamy." },
+  "V60 / Rarity": { ro: "Cafea filtrată manual, care pune în valoare aromele boabelor.", en: "Hand-filtered coffee that brings out the flavours of the beans." },
+  "Ciocolată caldă": { ro: "O pauză dulce, cu gust bogat de ciocolată.", en: "A sweet break with a rich chocolate flavour." },
+  "Matcha Latte": { ro: "Matcha cu lapte vegetal, deja inclus în preț.", en: "Matcha with plant milk, already included in the price." },
+  Babyccino: { ro: "Lapte cald și spumă fină, fără cafea.", en: "Warm milk and soft foam, without coffee." },
+  "Cold Brew": { ro: "Cafea extrasă lent la rece, servită cu gheață.", en: "Coffee slowly brewed cold, served over ice." },
+  "Cold Brew Latte": { ro: "Cafea extrasă la rece, îmblânzită cu lapte.", en: "Cold-brewed coffee softened with milk." },
+  "Cold Brew Tonic": { ro: "Cold brew cu apă tonică — răcoritor, cu o notă amăruie.", en: "Cold brew with tonic water — refreshing, with a bittersweet note." },
+  "Tonic Espresso": { ro: "Espresso cu apă tonică, pentru un contrast de arome.", en: "Espresso with tonic water for a contrast of flavours." },
+  "Iced Latte": { ro: "Espresso cu lapte și gheață, pentru o pauză răcoritoare.", en: "Espresso with milk and ice for a refreshing break." },
+  "Iced Strawberry Matcha": { ro: "Matcha cu căpșuni și lapte vegetal, deja inclus în preț.", en: "Matcha with strawberries and plant milk, already included in the price." },
+  "Iced Lime Matcha Soda": { ro: "Matcha cu lime, într-o variantă răcoritoare și efervescentă.", en: "Matcha with lime, refreshing and sparkling." },
+  Socată: { ro: "O băutură răcoritoare cu aromă de flori de soc.", en: "A refreshing drink with elderflower flavour." },
+};
+
 const plantMilkIncludedDrinks = new Set(["Matcha Latte", "Iced Strawberry Matcha"]);
 
 const milkSubstitutionDrinks = new Set([
@@ -831,7 +855,8 @@ export default function Home() {
           <div className={`menu-list ${menuLeaving ? "is-leaving" : ""}`} id="menu-panel" key={displayedCategory} role="tabpanel" aria-busy={menuLeaving} aria-labelledby={`menu-tab-${displayedCategory}`} tabIndex={0}>
             {menuItems[displayedCategory].map((item, index) => {
               const foodTags = getFoodTags(displayedCategory, item.ro);
-              return <article className={`menu-item ${item[language].length > 23 ? "has-long-name" : ""}`} key={item.ro}><span className="item-number">{String(index + 1).padStart(2, "0")}</span><div className="menu-item-details"><h3>{item[language]}</h3><p>{language === "ro" ? item.noteRo : item.noteEn}</p>{foodTags.length > 0 && <ul className="item-tags" aria-label={t.itemFoodInfo}>{foodTags.map((tag) => <li className={tag === "plantOption" ? "surcharge-tag" : undefined} key={tag}><span>{t.foodTags[tag]}</span>{tag === "plantOption" && <strong>{t.plantSurcharge}</strong>}</li>)}</ul>}</div><span className="item-price">{`${item.price.replace(/ lei$/, "")} RON`}</span></article>;
+              const description = menuDescriptions[item.ro]?.[language];
+              return <article className={`menu-item ${item[language].length > 23 ? "has-long-name" : ""}${description ? " has-description" : ""}`} key={item.ro}><span className="item-number">{String(index + 1).padStart(2, "0")}</span><div className="menu-item-details"><h3>{item[language]}</h3><p>{language === "ro" ? item.noteRo : item.noteEn}</p>{description && <p className="menu-item-description">{description}</p>}{foodTags.length > 0 && <ul className="item-tags" aria-label={t.itemFoodInfo}>{foodTags.map((tag) => <li className={tag === "plantOption" ? "surcharge-tag" : undefined} key={tag}><span>{t.foodTags[tag]}</span>{tag === "plantOption" && <strong>{t.plantSurcharge}</strong>}</li>)}</ul>}</div><span className="item-price">{`${item.price.replace(/ lei$/, "")} RON`}</span></article>;
             })}
           </div>
         </section>
