@@ -2,7 +2,14 @@ allowBuilds:
   esbuild: true
   sharp: true
   workerd: true
+minimumReleaseAgeExclude:
+  - '@cloudflare/workers-types@5.20261008.1'
 onlyBuiltDependencies:
   - esbuild
   - sharp
   - workerd
+overrides:
+  '@esbuild-kit/core-utils>esbuild': 0.25.12
+  fast-uri: 3.1.8
+  fflate: 0.7.5
+  sharp: 0.35.5

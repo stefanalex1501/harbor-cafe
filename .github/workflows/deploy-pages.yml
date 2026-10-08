@@ -31,8 +31,12 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Build static site
-        run: pnpm run build:pages
+      - name: Check types
+        run: pnpm run typecheck
+      - name: Lint
+        run: pnpm run lint
+      - name: Build and test
+        run: pnpm test
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload GitHub Pages artifact

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { animateScrollTo } from "./scroll-motion";
+import { observeHashNavigation } from "./hash-navigation";
 import { MobileSheet } from "./mobile-sheet";
 import { formatReviewSummary, googleReviewSummary } from "./review-summary";
 
@@ -45,7 +46,7 @@ const copy = {
     reviewsUpdated: "Scor și număr de recenzii verificate pe Google la", reviewsSnapshotDate: reviewSummaryRo.date, reviewsUpdateNote: "Actualizate manual, nu în timp real.",
     viewPhoto: "Deschide fotografia", lightboxLabel: "Galeria Harbor Cafe", closeGallery: "Închide galeria", previousPhoto: "Fotografia anterioară", nextPhoto: "Fotografia următoare", photoOf: "din",
     reviewsKicker: "Recenzii Google", reviewsTitle: <>Cuvinte lăsate<br />de oaspeții noștri.</>,
-    reviewsIntro: "Recenzii publice, păstrate exact în forma în care au fost scrise.", reviewsScore: reviewSummaryRo.score, reviewsCount: reviewSummaryRo.count, showOtherReviews: "Arată alte recenzii", googleReview: "Recenzie publicată pe Google", ratingLabel: "5 din 5 stele", openReview: "Deschide recenzia", viewAllReviews: "Vezi toate recenziile pe Google Maps",
+    reviewsIntro: "Recenzii publice, păstrate exact în forma în care au fost scrise.", reviewsScore: reviewSummaryRo.score, reviewsCount: reviewSummaryRo.count, showOtherReviews: "Arată alte recenzii", googleReview: "Recenzie publicată pe Google", ratingLabel: "5 din 5 stele", openReview: "Deschide recenzia", viewReviewProfile: "Vezi pe Google Maps", viewAllReviews: "Vezi toate recenziile pe Google Maps",
     galleryAlts: ["Latte art pregătit la Harbor Cafe", "Cafea măcinată manual", "Vitrina Harbor Cafe cu băuturi și gustări", "Cafea rece cu portocală", "Selecție de cafea de specialitate", "Decorul cu influențe nautice Harbor Cafe", "Cold brew turnat peste gheață", "Produse proaspete în vitrina Harbor Cafe", "Cafea preparată prin metoda V60", "Espressorul Harbor Cafe", "Barista tasând cafeaua", "Cafea rece fotografiată de sus", "Socată și croissante pe tejghea", "Selecție de cafea MABÓ și croissante", "Cafea măcinată pentru espresso", "Barista distribuind cafeaua în portafiltru", "Espresso proaspăt extras", "Espresso servit cu apă", "Espresso și croissante pe tejghea"],
     visitKicker: "Găsește-ne", visitTitle: "Ne vedem la Harbor.", addressLabel: "Adresă", address: "Bulevardul Alexandru Ioan Cuza 13, 011051 București",
     hoursLabel: "Program", mapTitle: "Harbor Cafe pe Google Maps", directions: "Deschide în Google Maps", copyAddress: "Copiază adresa", addressCopied: "Adresă copiată", addressCopyFailed: "Selectează adresa", instagram: "Urmărește-ne pe Instagram",
@@ -84,7 +85,7 @@ const copy = {
     reviewsUpdated: "Rating and review count checked on Google on", reviewsSnapshotDate: reviewSummaryEn.date, reviewsUpdateNote: "Updated manually, not in real time.",
     viewPhoto: "Open photo", lightboxLabel: "Harbor Cafe gallery", closeGallery: "Close gallery", previousPhoto: "Previous photo", nextPhoto: "Next photo", photoOf: "of",
     reviewsKicker: "Google reviews", reviewsTitle: <>Words from<br />our guests.</>,
-    reviewsIntro: "Public reviews, preserved exactly as they were written.", reviewsScore: reviewSummaryEn.score, reviewsCount: reviewSummaryEn.count, showOtherReviews: "Show other reviews", googleReview: "Review published on Google", ratingLabel: "5 out of 5 stars", openReview: "Open review", viewAllReviews: "View all reviews on Google Maps",
+    reviewsIntro: "Public reviews, preserved exactly as they were written.", reviewsScore: reviewSummaryEn.score, reviewsCount: reviewSummaryEn.count, showOtherReviews: "Show other reviews", googleReview: "Review published on Google", ratingLabel: "5 out of 5 stars", openReview: "Open review", viewReviewProfile: "View on Google Maps", viewAllReviews: "View all reviews on Google Maps",
     galleryAlts: ["Latte art being made at Harbor Cafe", "Coffee being ground by hand", "The Harbor Cafe counter with drinks and snacks", "Iced coffee with orange", "A selection of specialty coffee", "Harbor Cafe's nautical interior", "Cold brew poured over ice", "Fresh products at the Harbor Cafe counter", "Coffee brewed with the V60 method", "The Harbor Cafe espresso machine", "A barista tamping coffee", "Iced coffee photographed from above", "Elderflower soda and croissants on the counter", "A MABÓ coffee selection with croissants", "Coffee being ground for espresso", "A barista distributing coffee in a portafilter", "Freshly extracted espresso", "Espresso served with water", "Espresso and croissants on the counter"],
     visitKicker: "Find us", visitTitle: "Meet you at Harbor.", addressLabel: "Address", address: "13 Alexandru Ioan Cuza Boulevard, 011051 Bucharest",
     hoursLabel: "Opening hours", mapTitle: "Harbor Cafe on Google Maps", directions: "Open in Google Maps", copyAddress: "Copy address", addressCopied: "Address copied", addressCopyFailed: "Select the address", instagram: "Follow us on Instagram",
@@ -422,6 +423,12 @@ export default function Home() {
     });
   }, []);
   useEffect(() => () => cancelScrollRef.current?.(), []);
+  useEffect(() => observeHashNavigation((id) => {
+    cancelScrollRef.current?.();
+    scrollTargetRef.current = null;
+    if (["top", "story", "menu", "reviews", "visit", "gallery"].includes(id)) setActiveSection(id as SectionId);
+    else if (id === "opening-hours") setActiveSection("visit");
+  }), []);
   const refreshReviews = () => {
     // Ignore repeated clicks until the current transition has finished.
     if (reviewRefreshTimer.current !== null) return;
@@ -645,8 +652,9 @@ export default function Home() {
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
     if (import.meta.env.DEV) {
+      const siteScope = new URL(assetUrl(""), window.location.href).href;
       navigator.serviceWorker.getRegistrations()
-        .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+        .then((registrations) => Promise.all(registrations.filter((registration) => registration.scope === siteScope).map((registration) => registration.unregister())))
         .then(() => window.caches?.keys())
         .then((cacheNames) => cacheNames && Promise.all(cacheNames.filter((name) => name.startsWith("harbor-cafe-")).map((name) => window.caches.delete(name))))
         .catch(() => undefined);
@@ -891,7 +899,7 @@ export default function Home() {
             {visibleReviews.map((review, index) => <article className="review-card" key={review.author}>
               <div className="review-card-top"><span>0{index + 1}</span><div className="review-stars" aria-label={t.ratingLabel}><span aria-hidden="true">★★★★★</span></div></div>
               <blockquote><p>“{review.quote}”</p></blockquote>
-              <cite><span><strong>{review.author}</strong><small>{t.googleReview}</small></span><a href={review.sourceUrl} target="_blank" rel="noreferrer" aria-label={`${t.openReview}: ${review.author}`}>{t.openReview} <span aria-hidden="true">↗</span></a></cite>
+              <cite><span><strong>{review.author}</strong><small>{t.googleReview}</small></span><a href={review.sourceUrl} target="_blank" rel="noreferrer" aria-label={`${review.sourceUrl === mapsUrl ? t.viewReviewProfile : t.openReview}: ${review.author}`}>{review.sourceUrl === mapsUrl ? t.viewReviewProfile : t.openReview} <span aria-hidden="true">↗</span></a></cite>
             </article>)}
           </div>
           <div className="reviews-footer"><button type="button" onClick={refreshReviews} aria-controls="reviews-grid" aria-disabled={reviewPhase !== "idle"}>{t.showOtherReviews} <span aria-hidden="true">↻</span></button></div>

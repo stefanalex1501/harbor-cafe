@@ -1,30 +1,21 @@
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
+import { createTestHarness } from "wrangler";
 
-async function render() {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
-
-  return worker.fetch(
-    new Request("http://localhost/", {
-      headers: { accept: "text/html" },
-    }),
-    {
-      ASSETS: {
-        fetch: async () => new Response("Not found", { status: 404 }),
-      },
-    },
-    {
-      waitUntil() {},
-      passThroughOnException() {},
-    },
-  );
+async function render(t) {
+  // The built worker imports cloudflare:workers; run it in its real local
+  // runtime rather than Node's ESM loader (which cannot resolve that module).
+  const server = createTestHarness({
+    workers: [{ configPath: new URL("../dist/server/wrangler.json", import.meta.url) }],
+  });
+  t.after(() => server.close());
+  await server.listen();
+  return server.fetch("/", { headers: { accept: "text/html" } });
 }
 
-test("server-renders the Harbor Cafe homepage and visit details", async () => {
-  const response = await render();
+test("server-renders the Harbor Cafe homepage and visit details", async (t) => {
+  const response = await render(t);
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
@@ -49,7 +40,7 @@ test("server-renders the Harbor Cafe homepage and visit details", async () => {
   assert.match(html, /aria-controls="food-information-panel"/);
   assert.match(html, /aria-controls="menu-panel"/);
   assert.match(html, /aria-labelledby="menu-tab-coffee"/);
-  assert.match(html, /Opțiune vegetală/);
+  assert.match(html, /Lapte vegetal/);
   assert.match(html, /confirmă întotdeauna cu barista/);
   assert.match(html, /Cuvinte lăsate/);
   assert.match(html, /O cafenea super cozy/);

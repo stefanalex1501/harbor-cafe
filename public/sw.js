@@ -1,4 +1,5 @@
-const CACHE_NAME = "harbor-cafe-v2";
+const CACHE_PREFIX = "harbor-cafe-";
+const CACHE_NAME = `${CACHE_PREFIX}v3`;
 const ROOT_URL = new URL("./", self.location.href).href;
 const OFFLINE_ASSETS = [
   ROOT_URL,
@@ -32,7 +33,7 @@ self.addEventListener("activate", (event) => {
     caches.keys()
       .then((cacheNames) => Promise.all(
         cacheNames
-          .filter((cacheName) => cacheName !== CACHE_NAME)
+          .filter((cacheName) => cacheName.startsWith(CACHE_PREFIX) && cacheName !== CACHE_NAME)
           .map((cacheName) => caches.delete(cacheName)),
       ))
       .then(() => self.clients.claim()),
@@ -55,21 +56,28 @@ self.addEventListener("fetch", (event) => {
           }
           return response;
         })
-        .catch(() => caches.match(ROOT_URL)),
+        .catch(() => caches.open(CACHE_NAME).then((cache) => cache.match(ROOT_URL))),
     );
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
-      return fetch(event.request).then((response) => {
-        if (response.ok) {
-          const responseCopy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseCopy));
-        }
-        return response;
-      });
+  const cache = caches.open(CACHE_NAME);
+  const fetchAndCache = () => fetch(event.request, { cache: "no-cache" }).then((response) => {
+    if (response.ok) {
+      const responseCopy = response.clone();
+      event.waitUntil(cache.then((storage) => storage.put(event.request, responseCopy)));
+    }
+    return response;
+  });
+  // Vite's fingerprinted bundles are immutable. Photos, logos and manifests
+  // have stable URLs and must be checked online before using an old copy.
+  const immutable = /\/assets\/[^/]+-[\w-]{8,}\.(?:js|css)$/.test(requestUrl.pathname);
+  event.respondWith(immutable
+    ? cache.then((storage) => storage.match(event.request)).then((cached) => cached || fetchAndCache())
+    : fetchAndCache().catch(async (error) => {
+      const cached = await (await cache).match(event.request);
+      if (cached) return cached;
+      throw error;
     }),
   );
 });
