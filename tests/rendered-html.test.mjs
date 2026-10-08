@@ -20,7 +20,8 @@ test("server-renders the Harbor Cafe homepage and visit details", async (t) => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>Harbor Cafe — Cafea bună\. Ritm domol\.<\/title>/i);
+  assert.match(html, /<title>Harbor Cafe București — Cafea de specialitate<\/title>/i);
+  assert.match(html, /<link\b(?=[^>]*\brel="canonical")(?=[^>]*\bhref="https:\/\/harborcafe\.ro\/?")[^>]*>/);
   assert.match(html, /Bulevardul Alexandru Ioan Cuza 13, 011051 București/);
   assert.match(html, /<dt>Luni<\/dt><dd>07:00–17:00<\/dd>/);
   assert.match(html, /<dt>Duminică<\/dt><dd>Închis<\/dd>/);
@@ -77,7 +78,7 @@ test("keeps the project detached from Sites hosting", async () => {
   assert.match(index, /rel="manifest" href="\.\/manifest\.webmanifest"/);
   assert.match(index, /rel="icon" type="image\/png" sizes="192x192" href="\.\/harbor-cafe-round-192\.png"/);
   assert.match(index, /rel="apple-touch-icon" sizes="180x180" href="\.\/harbor-cafe-round-180\.png"/);
-  assert.match(index, /rel="canonical" href="https:\/\/stefanalex1501\.github\.io\/harbor-cafe\/"/);
+  assert.match(index, /rel="canonical" href="https:\/\/harborcafe\.ro\/"/);
   assert.match(index, /"@type": "CafeOrCoffeeShop"/);
   assert.match(index, /"acceptsReservations": false/);
   assert.match(page, /navigator\.serviceWorker\.register\(assetUrl\("sw\.js"\)\)/);

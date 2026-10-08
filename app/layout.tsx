@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-const siteUrl = "https://stefanalex1501.github.io/harbor-cafe/";
+const siteUrl = "https://harborcafe.ro/";
+const siteTitle = "Harbor Cafe București — Cafea de specialitate";
+const siteDescription = "Harbor Cafe — cafenea cu cafea de specialitate în București, pe Bulevardul Alexandru Ioan Cuza 13. Descoperă meniul, programul și locația.";
 const mapsUrl = "https://www.google.com/maps/place/Harbor+Cafe/@44.4489541,26.0806877,19z/data=!4m16!1m9!3m8!1s0x40b201004f4513f3:0xc119237662a4b949!2sHarbor+Cafe!8m2!3d44.4489541!4d26.0813495!9m1!1b1!16s%2Fg%2F11x90nxt_4!3m5!1s0x40b201004f4513f3:0xc119237662a4b949!8m2!3d44.4489541!4d26.0813495!16s%2Fg%2F11x90nxt_4?entry=ttu";
 const localBusinessJsonLd = {
   "@context": "https://schema.org",
@@ -41,8 +43,8 @@ export const viewport = {
 export function generateMetadata(): Metadata {
   return {
     metadataBase: new URL(siteUrl),
-    title: "Harbor Cafe — Cafea bună. Ritm domol.",
-    description: "Harbor Cafe București — specialty coffee, Prosecco și lumină naturală, pe Bulevardul Alexandru Ioan Cuza 13.",
+    title: siteTitle,
+    description: siteDescription,
     alternates: { canonical: siteUrl },
     manifest: "/manifest.webmanifest",
     icons: {
@@ -56,13 +58,13 @@ export function generateMetadata(): Metadata {
       url: siteUrl,
       locale: "ro_RO",
       siteName: "Harbor Cafe",
-      title: "Harbor Cafe — Cafea bună. Ritm domol.",
+      title: siteTitle,
       description: "Specialty coffee, Prosecco și lumină naturală în București.",
       images: [{ url: `${siteUrl}og.png`, width: 1672, height: 941, alt: "Harbor Cafe — Cafea bună. Ritm domol." }],
     },
     twitter: {
       card: "summary_large_image",
-      title: "Harbor Cafe — Cafea bună. Ritm domol.",
+      title: siteTitle,
       description: "Specialty coffee, Prosecco și lumină naturală în București.",
       images: [`${siteUrl}og.png`],
     },
