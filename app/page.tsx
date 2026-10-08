@@ -29,14 +29,14 @@ const copy = {
     detailBody2: "Cântărim fiecare doză, urmărim timpul și ajustăm măcinătura pe parcursul zilei, pentru ca fiecare cafea să rămână echilibrată și expresivă.",
     detailBody3: "Harbor este locul pentru câteva minute fără grabă — o cafea bună, lumină caldă și timp să respiri înainte ca ziua să meargă mai departe.",
     expandDetail: "Afișează mai multe informații", collapseDetail: "Ascunde informațiile", menuKicker: "Meniul Harbor", menuTitle: "Simplu. Bun. Memorabil.",
-    menuIntro: "Cafea de specialitate, băuturi reci, ciabatta și deserturi — toate într-un singur loc.",
+    menuIntro: "Cafea de specialitate, băuturi reci, sandvișuri artizanale și deserturi — toate într-un singur loc.",
     foodInfo: "Informații alimentare", showFoodInfo: "Vezi informațiile alimentare", hideFoodInfo: "Ascunde informațiile alimentare",
     foodInfoIntro: "Marcajele sunt orientative și se bazează pe rețetele obișnuite. Ingredientele și riscul de contaminare încrucișată pot varia; dacă ai alergii sau intoleranțe, confirmă întotdeauna cu barista înainte de comandă.",
     plantInfo: "Înlocuirea laptelui obișnuit cu lapte vegetal costă +5 RON doar la băuturile marcate cu această opțiune, în funcție de stoc. Matcha Latte și Iced Strawberry Matcha se prepară cu lapte vegetal, deja inclus în preț.",
     plantSurcharge: "+5 RON",
     foodTags: { milk: "Lapte", gluten: "Gluten", eggs: "Ouă", nuts: "Fructe cu coajă", alcoholFree: "Fără alcool", plantOption: "Lapte vegetal", plantIncluded: "Lapte vegetal inclus" },
     itemFoodInfo: "Informații orientative despre ingrediente",
-    categories: { coffee: "Cafea", notCoffee: "Rece & bar", brunch: "Ciabatta", sweet: "Deserturi" },
+    categories: { coffee: "Cafea", notCoffee: "Rece & bar", brunch: "Sandvișuri", sweet: "Deserturi" },
     galleryKicker: "Galerie", galleryTitle: <>Texturi, lumină<br />și cafea bună.</>,
     galleryNote: "O privire în atmosfera Harbor Cafe — lumină caldă, cafea pregătită cu grijă și ceva bun alături.",
     showAllPhotos: "Vezi toate fotografiile", showFewerPhotos: "Arată mai puține", photosLabel: "fotografii",
@@ -68,14 +68,14 @@ const copy = {
     detailBody2: "We weigh every dose, track each extraction, and adjust the grind throughout the day so every coffee remains balanced and expressive.",
     detailBody3: "Harbor is a place for a few unhurried minutes — good coffee, warm light, and time to breathe before the day moves on.",
     expandDetail: "Show more information", collapseDetail: "Hide information", menuKicker: "The Harbor menu", menuTitle: "Simple. Good. Memorable.",
-    menuIntro: "Specialty coffee, cold drinks, ciabatta, and sweets — all in one place.",
+    menuIntro: "Specialty coffee, cold drinks, artisan sandwiches, and sweets — all in one place.",
     foodInfo: "Food information", showFoodInfo: "View food information", hideFoodInfo: "Hide food information",
     foodInfoIntro: "Markers are a guide based on the usual recipes. Ingredients and cross-contamination risks may vary; if you have allergies or intolerances, always confirm with the barista before ordering.",
     plantInfo: "Replacing regular milk with plant milk costs +5 RON only for drinks marked with this option, subject to availability. Matcha Latte and Iced Strawberry Matcha are made with plant milk, already included in the price.",
     plantSurcharge: "+5 RON",
     foodTags: { milk: "Milk", gluten: "Gluten", eggs: "Eggs", nuts: "Tree nuts", alcoholFree: "Alcohol-free", plantOption: "Plant milk", plantIncluded: "Plant milk included" },
     itemFoodInfo: "Indicative ingredient information",
-    categories: { coffee: "Coffee", notCoffee: "Cold & bar", brunch: "Ciabatta", sweet: "Sweets" },
+    categories: { coffee: "Coffee", notCoffee: "Cold & bar", brunch: "Sandwiches", sweet: "Sweets" },
     galleryKicker: "Gallery", galleryTitle: <>Texture, light<br />and good coffee.</>,
     galleryNote: "A glimpse into Harbor Cafe — warm light, carefully made coffee, and something good on the side.",
     showAllPhotos: "View all photos", showFewerPhotos: "Show fewer photos", photosLabel: "photos",
@@ -131,9 +131,11 @@ const menuItems = {
     { ro: "Cocktail F.A.", en: "Alcohol-free Cocktail", noteRo: "Fără alcool", noteEn: "Alcohol-free", price: "21 lei" },
   ],
   brunch: [
-    { ro: "Cotto", en: "Cotto", noteRo: "Prosciutto cotto, mozzarella, sos pesto", noteEn: "Prosciutto cotto, mozzarella, pesto sauce", price: "34 lei" },
-    { ro: "Chorizzino", en: "Chorizzino", noteRo: "Rucola, mozzarella, salami chorizo, salsa de trufe", noteEn: "Rocket, mozzarella, chorizo salami, truffle salsa", price: "34 lei" },
-    { ro: "Toscana", en: "Toscana", noteRo: "Mozzarella, șuncă de pui, carciofi, cremă de brânză", noteEn: "Mozzarella, chicken ham, artichokes, cream cheese", price: "34 lei" },
+    { ro: "Taglio", en: "Taglio", noteRo: "Schiacciata, porchetta, spianata picante, cremă de brânză, miere", noteEn: "Schiacciata, porchetta, spicy spianata salami, cream cheese, honey", price: "34 lei" },
+    { ro: "Fiamma", en: "Fiamma", noteRo: "Schiacciata, rucola, mozzarella, cremă de brânză, chorizo, trufe", noteEn: "Schiacciata, rocket, mozzarella, cream cheese, chorizo, truffles", price: "34 lei" },
+    { ro: "Velluto", en: "Velluto", noteRo: "Schiacciata, cotto, rucola, cremă de brânză, pesto", noteEn: "Schiacciata, cooked ham, rocket, cream cheese, pesto", price: "34 lei" },
+    { ro: "Divino", en: "Divino", noteRo: "Schiacciata, mortadella, trufe, cremă de brânză", noteEn: "Schiacciata, mortadella, truffles, cream cheese", price: "34 lei" },
+    { ro: "Brizza", en: "Brizza", noteRo: "Schiacciata, ardei copt, whipped feta, mascarpone, rucola", noteEn: "Schiacciata, roasted pepper, whipped feta, mascarpone, rocket", price: "34 lei" },
   ],
   sweet: [
     { ro: "Pricomigdale", en: "Almond Macaroons", noteRo: "Desert cu migdale", noteEn: "Almond treat", price: "11 lei" },
@@ -182,7 +184,7 @@ const milkSubstitutionDrinks = new Set([
 function getFoodTags(category: MenuCategory, itemName: string): FoodTag[] {
   if (plantMilkIncludedDrinks.has(itemName)) return ["plantIncluded"];
   if (milkSubstitutionDrinks.has(itemName)) return ["milk", "plantOption"];
-  if (category === "brunch") return itemName === "Cotto" ? ["gluten", "milk", "nuts"] : ["gluten", "milk"];
+  if (category === "brunch") return ["gluten", "milk"];
   if (category === "sweet") return itemName === "Pricomigdale" ? ["nuts", "eggs"] : ["gluten", "milk", "eggs"];
   if (itemName === "Cocktail F.A.") return ["alcoholFree"];
   return [];

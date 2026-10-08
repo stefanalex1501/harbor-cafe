@@ -11,9 +11,9 @@ const localBusinessJsonLd = {
   url: siteUrl,
   image: `${siteUrl}og.png`,
   logo: `${siteUrl}harbor-cafe-round-512.png`,
-  description: "Cafea de specialitate, Prosecco, ciabatta și deserturi în București.",
+  description: "Cafea de specialitate, Prosecco, sandvișuri artizanale și deserturi în București.",
   priceRange: "1–40 RON",
-  servesCuisine: ["Specialty coffee", "Cafe", "Ciabatta", "Desserts"],
+  servesCuisine: ["Specialty coffee", "Cafe", "Sandwiches", "Desserts"],
   acceptsReservations: false,
   address: {
     "@type": "PostalAddress",
