@@ -81,6 +81,7 @@ export default function RootLayout({
       <body>
         {children}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }} />
+        <script type="module" defer src="/analytics.js" />
       </body>
     </html>
   );
