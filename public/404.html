@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#051d2d" />
+    <meta name="color-scheme" content="dark" />
+    <title>Pagina nu a fost găsită — Harbor Cafe</title>
+    <style>
+      :root { color-scheme: dark; --ink: #051d2d; --cream: #f3ede1; --sand: #d3a389; }
+      * { box-sizing: border-box; }
+      html { min-height: 100%; background: var(--ink); }
+      body { margin: 0; min-height: 100svh; color: var(--cream); background: radial-gradient(ellipse at 85% 35%, #153443 0, transparent 55%), var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+      a { color: inherit; text-decoration: none; }
+      button { font: inherit; }
+      :focus-visible { outline: 2px solid var(--sand); outline-offset: 6px; }
+      .shell { width: min(1200px, 91%); min-height: 100svh; margin-inline: auto; display: flex; flex-direction: column; padding-block: env(safe-area-inset-top) env(safe-area-inset-bottom); }
+      header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: 1.75rem; border-bottom: 1px solid #f3ede126; }
+      .wordmark { font-size: .95rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+      .language { min-width: 44px; min-height: 44px; border-radius: 50%; border: 1px solid #f3ede160; background: transparent; color: var(--cream); cursor: pointer; font-size: .8rem; letter-spacing: .05em; }
+      .language:hover { border-color: var(--sand); color: var(--sand); }
+      main { flex: 1; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: center; gap: 5vw; padding-block: 4rem; }
+      .eyebrow { display: flex; align-items: center; gap: 1rem; margin: 0 0 1.5rem; color: var(--sand); font-size: .75rem; letter-spacing: .18em; text-transform: uppercase; }
+      .eyebrow::after { content: ""; width: 48px; height: 1px; background: currentColor; opacity: .6; }
+      h1 { max-width: 11ch; margin: 0 0 1.75rem; font: 400 clamp(3rem, 6.5vw, 5.75rem)/1.06 Georgia, "Times New Roman", serif; letter-spacing: -.045em; }
+      .description { max-width: 38ch; margin: 0 0 2.25rem; font-size: 1rem; line-height: 1.8; color: #f3ede1ba; }
+      .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem 1.5rem; }
+      .primary { display: inline-flex; align-items: center; justify-content: space-between; gap: 1.5rem; min-height: 52px; padding: .95rem 1.3rem; border: 1px solid var(--cream); background: var(--cream); color: var(--ink); font-size: .8rem; font-weight: 600; transition: background .2s ease, border-color .2s ease; }
+      .primary:hover { background: #d8c7ad; border-color: #d8c7ad; }
+      .secondary { display: inline-flex; align-items: center; gap: 1rem; min-height: 48px; border-bottom: 1px solid var(--sand); font-size: .8rem; }
+      .secondary:hover { color: var(--sand); }
+      .seal { position: relative; display: grid; place-items: center; justify-self: center; width: min(100%, 380px); aspect-ratio: 1; }
+      .seal::before, .seal::after { content: ""; position: absolute; inset: 0; border: 1px solid #d3a38942; border-radius: 50%; }
+      .seal::after { inset: 7%; border-color: #f3ede114; }
+      .seal img { width: 70%; height: 70%; object-fit: contain; }
+      .seal-code { position: absolute; bottom: -.55rem; padding-inline: .85rem; background: var(--ink); color: var(--sand); font-size: .7rem; letter-spacing: .24em; }
+      footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1rem; padding-block: 1.5rem; border-top: 1px solid #f3ede126; color: #f3ede18c; font-size: .75rem; line-height: 1.7; }
+      footer p { margin: 0; }
+      main > * { animation: arrive .5s ease both; }
+      @keyframes arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+      @media (max-width: 760px) {
+        header { padding-block: 1rem; }
+        .wordmark { font-size: .8rem; letter-spacing: .17em; }
+        main { grid-template-columns: 1fr; gap: 3.5rem; padding-block: 2.5rem; }
+        h1 { font-size: clamp(2.8rem, 11vw, 4rem); }
+        .description { font-size: .9375rem; }
+        .seal { width: min(55vw, 220px); }
+        .actions { gap: 1rem; }
+        footer { font-size: .7rem; }
+      }
+      @media (prefers-reduced-motion: reduce) { main > * { animation: none; } .primary { transition: none; } }
+    </style>
+    <script>
+      // A GitHub project uses a subdirectory; a custom domain/local server uses /.
+      // Set the base before parsing assets, so even deeply nested missing URLs
+      // load the logo and return links from the actual site root.
+      const harborBase = document.createElement("base");
+      harborBase.href = location.hostname.endsWith(".github.io") ? "/harbor-cafe/" : "/";
+      document.head.append(harborBase);
+    </script>
+    <link rel="icon" type="image/png" href="harbor-cafe-round-192.png" />
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <a class="wordmark" href="./" aria-label="Harbor Cafe — Acasă">Harbor Cafe</a>
+        <button class="language" type="button" aria-label="Switch language to English">EN</button>
+      </header>
+      <main>
+        <div>
+          <p class="eyebrow" data-copy="eyebrow">404 · Pagină negăsită</p>
+          <h1 data-copy="title">Ai ieșit puțin din traseu.</h1>
+          <p class="description" data-copy="description">Pagina pe care o cauți nu este aici. Dar cafeaua bună și momentele tihnite sunt la un click distanță.</p>
+          <nav class="actions" aria-label="Înapoi la Harbor Cafe">
+            <a class="primary" href="./"><span data-copy="home">Înapoi la cafenea</span><span aria-hidden="true">↗</span></a>
+            <a class="secondary" href="./#menu"><span data-copy="menu">Descoperă meniul</span><span aria-hidden="true">↗</span></a>
+          </nav>
+        </div>
+        <div class="seal" aria-hidden="true">
+          <img src="harbor-cafe-round-512.png" width="512" height="512" alt="" />
+          <span class="seal-code">HARBOR / 404</span>
+        </div>
+      </main>
+      <footer><p data-copy="footer">Cafea bună. Ritm domol.</p><p>Harbor Cafe · București</p></footer>
+    </div>
+    <script>
+      const notFoundCopy = {
+        ro: {
+          eyebrow: "404 · Pagină negăsită", title: "Ai ieșit puțin din traseu.",
+          description: "Pagina pe care o cauți nu este aici. Dar cafeaua bună și momentele tihnite sunt la un click distanță.",
+          home: "Înapoi la cafenea", menu: "Descoperă meniul", footer: "Cafea bună. Ritm domol.",
+          pageTitle: "Pagina nu a fost găsită — Harbor Cafe", navigation: "Înapoi la Harbor Cafe", homeLabel: "Harbor Cafe — Acasă", switchLabel: "Switch language to English",
+        },
+        en: {
+          eyebrow: "404 · Page not found", title: "A little off the beaten path.",
+          description: "The page you're looking for isn't here. But good coffee and unhurried moments are just a click away.",
+          home: "Back to the café", menu: "Discover the menu", footer: "Good coffee. Easy rhythm.",
+          pageTitle: "Page not found — Harbor Cafe", navigation: "Back to Harbor Cafe", homeLabel: "Harbor Cafe — Home", switchLabel: "Schimbă limba în română",
+        },
+      };
+      let language = "ro";
+      try { if (localStorage.getItem("harbor-cafe-language") === "en") language = "en"; } catch { /* Storage can be unavailable in private browsing. */ }
+      const languageButton = document.querySelector(".language");
+      function renderLanguage() {
+        const text = notFoundCopy[language];
+        document.documentElement.lang = language;
+        document.title = text.pageTitle;
+        document.querySelectorAll("[data-copy]").forEach((element) => { element.textContent = text[element.dataset.copy]; });
+        document.querySelector(".actions").setAttribute("aria-label", text.navigation);
+        document.querySelector(".wordmark").setAttribute("aria-label", text.homeLabel);
+        languageButton.textContent = language === "ro" ? "EN" : "RO";
+        languageButton.setAttribute("aria-label", text.switchLabel);
+      }
+      languageButton.addEventListener("click", () => {
+        language = language === "ro" ? "en" : "ro";
+        try { localStorage.setItem("harbor-cafe-language", language); } catch { /* Keep the selection for this page visit. */ }
+        renderLanguage();
+      });
+      renderLanguage();
+    </script>
+  </body>
+</html>

@@ -59,7 +59,7 @@ test("server-renders the Harbor Cafe homepage and visit details", async () => {
   assert.match(html, /Recenzie publicată pe Google/);
   assert.match(html, /Vezi toate recenziile pe Google Maps/);
   assert.match(html, /4,9 pe Google/);
-  assert.match(html, /67 de recenzii/);
+  assert.match(html, /68 de recenzii/);
   assert.match(html, /Arată alte recenzii/);
   assert.match(html, /type="image\/avif"/);
   assert.match(html, /type="image\/webp"/);
@@ -71,11 +71,12 @@ test("server-renders the Harbor Cafe homepage and visit details", async () => {
 });
 
 test("keeps the project detached from Sites hosting", async () => {
-  const [page, styles, viteConfig, index] = await Promise.all([
+  const [page, styles, viteConfig, index, reviewSummary] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../vite.config.ts", import.meta.url), "utf8"),
     readFile(new URL("../index.html", import.meta.url), "utf8"),
+    readFile(new URL("../app/review-summary.ts", import.meta.url), "utf8"),
   ]);
 
   assert.match(page, /mapsEmbedUrl/);
@@ -92,7 +93,7 @@ test("keeps the project detached from Sites hosting", async () => {
   assert.match(page, /maps\.app\.goo\.gl\/T3QEAoutTwmY8DQp6/);
   assert.match(page, /maps\.app\.goo\.gl\/QAcQhoQasSwsH5qH6/);
   assert.match(page, /pickRandomReviews/);
-  assert.match(page, /google\.com\/maps\/place\/Harbor\+Cafe/);
+  assert.match(reviewSummary, /google\.com\/maps\/place\/Harbor\+Cafe/);
   assert.match(page, /scrollToSection/);
   assert.match(page, /window\.scrollTo/);
   assert.match(page, /showOtherReviewSelection/);

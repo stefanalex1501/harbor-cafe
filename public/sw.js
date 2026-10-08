@@ -47,8 +47,12 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          const responseCopy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(ROOT_URL, responseCopy));
+          // Never replace the offline homepage with a missing-page response.
+          const rootPath = new URL(ROOT_URL).pathname;
+          if (response.ok && [rootPath, `${rootPath}index.html`].includes(requestUrl.pathname)) {
+            const responseCopy = response.clone();
+            event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.put(ROOT_URL, responseCopy)));
+          }
           return response;
         })
         .catch(() => caches.match(ROOT_URL)),

@@ -3,11 +3,15 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { animateScrollTo } from "./scroll-motion";
 import { MobileSheet } from "./mobile-sheet";
+import { formatReviewSummary, googleReviewSummary } from "./review-summary";
 
 type Language = "ro" | "en";
 type MenuCategory = "coffee" | "notCoffee" | "brunch" | "sweet";
 type SectionId = "top" | "story" | "menu" | "reviews" | "visit" | "gallery";
 type FoodTag = "milk" | "gluten" | "eggs" | "nuts" | "alcoholFree" | "plantOption" | "plantIncluded";
+
+const reviewSummaryRo = formatReviewSummary("ro");
+const reviewSummaryEn = formatReviewSummary("en");
 
 const copy = {
   ro: {
@@ -38,10 +42,10 @@ const copy = {
     showAllPhotos: "Vezi toate fotografiile", showFewerPhotos: "Arată mai puține", photosLabel: "fotografii",
     backToMenu: "Înapoi la meniu", productsLabel: "produse", today: "Azi",
     closingIn: (minutes: number) => `Închidem în ${minutes} min`,
-    reviewsUpdated: "Scor și număr de recenzii introduse pe site la", reviewsSnapshotDate: "3 septembrie 2026", reviewsUpdateNote: "Actualizate manual, nu în timp real.",
+    reviewsUpdated: "Scor și număr de recenzii verificate pe Google la", reviewsSnapshotDate: reviewSummaryRo.date, reviewsUpdateNote: "Actualizate manual, nu în timp real.",
     viewPhoto: "Deschide fotografia", lightboxLabel: "Galeria Harbor Cafe", closeGallery: "Închide galeria", previousPhoto: "Fotografia anterioară", nextPhoto: "Fotografia următoare", photoOf: "din",
     reviewsKicker: "Recenzii Google", reviewsTitle: <>Cuvinte lăsate<br />de oaspeții noștri.</>,
-    reviewsIntro: "Recenzii publice, păstrate exact în forma în care au fost scrise.", reviewsScore: "4,9 pe Google", reviewsCount: "67 de recenzii", showOtherReviews: "Arată alte recenzii", googleReview: "Recenzie publicată pe Google", ratingLabel: "5 din 5 stele", openReview: "Deschide recenzia", viewAllReviews: "Vezi toate recenziile pe Google Maps",
+    reviewsIntro: "Recenzii publice, păstrate exact în forma în care au fost scrise.", reviewsScore: reviewSummaryRo.score, reviewsCount: reviewSummaryRo.count, showOtherReviews: "Arată alte recenzii", googleReview: "Recenzie publicată pe Google", ratingLabel: "5 din 5 stele", openReview: "Deschide recenzia", viewAllReviews: "Vezi toate recenziile pe Google Maps",
     galleryAlts: ["Latte art pregătit la Harbor Cafe", "Cafea măcinată manual", "Vitrina Harbor Cafe cu băuturi și gustări", "Cafea rece cu portocală", "Selecție de cafea de specialitate", "Decorul cu influențe nautice Harbor Cafe", "Cold brew turnat peste gheață", "Produse proaspete în vitrina Harbor Cafe", "Cafea preparată prin metoda V60", "Espressorul Harbor Cafe", "Barista tasând cafeaua", "Cafea rece fotografiată de sus", "Socată și croissante pe tejghea", "Selecție de cafea MABÓ și croissante", "Cafea măcinată pentru espresso", "Barista distribuind cafeaua în portafiltru", "Espresso proaspăt extras", "Espresso servit cu apă", "Espresso și croissante pe tejghea"],
     visitKicker: "Găsește-ne", visitTitle: "Ne vedem la Harbor.", addressLabel: "Adresă", address: "Bulevardul Alexandru Ioan Cuza 13, 011051 București",
     hoursLabel: "Program", mapTitle: "Harbor Cafe pe Google Maps", directions: "Deschide în Google Maps", copyAddress: "Copiază adresa", addressCopied: "Adresă copiată", addressCopyFailed: "Selectează adresa", instagram: "Urmărește-ne pe Instagram",
@@ -77,10 +81,10 @@ const copy = {
     showAllPhotos: "View all photos", showFewerPhotos: "Show fewer photos", photosLabel: "photos",
     backToMenu: "Back to the menu", productsLabel: "items", today: "Today",
     closingIn: (minutes: number) => `Closing in ${minutes} min`,
-    reviewsUpdated: "Rating and review count added to this site on", reviewsSnapshotDate: "3 September 2026", reviewsUpdateNote: "Updated manually, not in real time.",
+    reviewsUpdated: "Rating and review count checked on Google on", reviewsSnapshotDate: reviewSummaryEn.date, reviewsUpdateNote: "Updated manually, not in real time.",
     viewPhoto: "Open photo", lightboxLabel: "Harbor Cafe gallery", closeGallery: "Close gallery", previousPhoto: "Previous photo", nextPhoto: "Next photo", photoOf: "of",
     reviewsKicker: "Google reviews", reviewsTitle: <>Words from<br />our guests.</>,
-    reviewsIntro: "Public reviews, preserved exactly as they were written.", reviewsScore: "4.9 on Google", reviewsCount: "67 reviews", showOtherReviews: "Show other reviews", googleReview: "Review published on Google", ratingLabel: "5 out of 5 stars", openReview: "Open review", viewAllReviews: "View all reviews on Google Maps",
+    reviewsIntro: "Public reviews, preserved exactly as they were written.", reviewsScore: reviewSummaryEn.score, reviewsCount: reviewSummaryEn.count, showOtherReviews: "Show other reviews", googleReview: "Review published on Google", ratingLabel: "5 out of 5 stars", openReview: "Open review", viewAllReviews: "View all reviews on Google Maps",
     galleryAlts: ["Latte art being made at Harbor Cafe", "Coffee being ground by hand", "The Harbor Cafe counter with drinks and snacks", "Iced coffee with orange", "A selection of specialty coffee", "Harbor Cafe's nautical interior", "Cold brew poured over ice", "Fresh products at the Harbor Cafe counter", "Coffee brewed with the V60 method", "The Harbor Cafe espresso machine", "A barista tamping coffee", "Iced coffee photographed from above", "Elderflower soda and croissants on the counter", "A MABÓ coffee selection with croissants", "Coffee being ground for espresso", "A barista distributing coffee in a portafilter", "Freshly extracted espresso", "Espresso served with water", "Espresso and croissants on the counter"],
     visitKicker: "Find us", visitTitle: "Meet you at Harbor.", addressLabel: "Address", address: "13 Alexandru Ioan Cuza Boulevard, 011051 Bucharest",
     hoursLabel: "Opening hours", mapTitle: "Harbor Cafe on Google Maps", directions: "Open in Google Maps", copyAddress: "Copy address", addressCopied: "Address copied", addressCopyFailed: "Select the address", instagram: "Follow us on Instagram",
@@ -92,8 +96,7 @@ const copy = {
 
 const menuCategoryKeys: MenuCategory[] = ["coffee", "notCoffee", "brunch", "sweet"];
 const galleryPreviewCount = 6;
-// Date these figures were introduced in the site, not a live Google verification.
-const reviewsSnapshotDate = "2026-09-03";
+const reviewsSnapshotDate = googleReviewSummary.verifiedAt;
 
 const menuItems = {
   coffee: [
@@ -238,7 +241,7 @@ function GalleryPicture({ image, alt, sizes, loading = "lazy" }: GalleryPictureP
 const instagramUrl = "https://www.instagram.com/harborcafe.bucuresti/";
 const physicalAddress = "Bulevardul Alexandru Ioan Cuza 13, 011051 București";
 const languageStorageKey = "harbor-cafe-language";
-const mapsUrl = "https://www.google.com/maps/place/Harbor+Cafe/@44.4489541,26.0806877,19z/data=!4m16!1m9!3m8!1s0x40b201004f4513f3:0xc119237662a4b949!2sHarbor+Cafe!8m2!3d44.4489541!4d26.0813495!9m1!1b1!16s%2Fg%2F11x90nxt_4!3m5!1s0x40b201004f4513f3:0xc119237662a4b949!8m2!3d44.4489541!4d26.0813495!16s%2Fg%2F11x90nxt_4?entry=ttu";
+const mapsUrl = googleReviewSummary.sourceUrl;
 const mapsEmbedUrl = "https://www.google.com/maps?q=Harbor%20Cafe%2C%20Bulevardul%20Alexandru%20Ioan%20Cuza%2013%2C%20Bucuresti&output=embed";
 const sectionIds: SectionId[] = ["top", "story", "menu", "reviews", "visit", "gallery"];
 
